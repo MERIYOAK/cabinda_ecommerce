@@ -37,7 +37,7 @@ const s3Client = new S3Client({
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.BASE_URL,
   credentials: true
 }));
 app.use(express.json());
