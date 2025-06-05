@@ -1,0 +1,19 @@
+Please add the following images to this directory:
+
+1. electronics.jpg - Image showing electronics like smartphones, laptops, etc.
+Size: 800x600px
+Format: JPG
+
+2. fashion.jpg - Image showing clothing and accessories
+Size: 800x600px
+Format: JPG
+
+3. home.jpg - Image showing home decor and furniture
+Size: 800x600px
+Format: JPG
+
+4. beauty.jpg - Image showing beauty and personal care products
+Size: 800x600px
+Format: JPG
+
+Note: Images should be high quality and optimized for web use. 

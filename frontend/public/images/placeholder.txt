@@ -1,0 +1,11 @@
+Please add the following hero image:
+
+hero-bg.jpg - A high-quality image of a modern retail store or shopping experience
+Requirements:
+- Size: 1920x1080px (Full HD)
+- Format: JPG
+- Content: Modern retail store interior or shopping scene
+- Style: Well-lit, spacious, and inviting
+- Optimization: Compressed for web use while maintaining quality
+
+Note: The image will be used with an overlay, so it should have good contrast and not be too busy. 

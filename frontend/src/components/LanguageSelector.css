@@ -1,0 +1,152 @@
+.language-selector {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.language-selector:hover {
+  border-color: #666;
+}
+
+.language-selector:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.language-selector option {
+  padding: 8px;
+}
+
+.language-selector {
+  position: relative;
+  min-width: 80px;
+}
+
+.language-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.language-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.language-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.language-icon {
+  font-size: 1.2rem;
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 1000;
+  min-width: 150px;
+  animation: fadeIn 0.2s ease;
+}
+
+.language-option {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--text-dark);
+}
+
+.language-option:hover:not(:disabled) {
+  background: var(--primary-fade);
+  color: var(--primary);
+}
+
+.language-option:disabled {
+  background: var(--primary-fade);
+  color: var(--primary);
+  font-weight: 500;
+  cursor: default;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hide Google Translate elements */
+.goog-te-banner-frame,
+.skiptranslate {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  font-size: 0 !important;
+}
+
+.goog-te-gadget > span {
+  display: none !important;
+}
+
+.goog-te-gadget > div {
+  display: inline !important;
+}
+
+/* Fix Google Translate positioning */
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .language-button {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .language-icon {
+    font-size: 1.1rem;
+  }
+} 

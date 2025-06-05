@@ -1,0 +1,537 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FaEdit, FaTrash, FaFilter, FaPlus, FaTags } from 'react-icons/fa';
+import './OfferManager.css';
+
+function OfferManager() {
+  const [offers, setOffers] = useState([]);
+  const [filteredOffers, setFilteredOffers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [filters, setFilters] = useState({
+    category: 'all',
+    status: 'all',
+    search: ''
+  });
+  const [loading, setLoading] = useState(true);
+
+  const categories = ['seasonal', 'clearance', 'flash', 'bundle', 'holiday', 'other'];
+
+  const [offerForm, setOfferForm] = useState({
+    title: '',
+    description: '',
+    category: 'other',
+    discountPercentage: '',
+    products: [],
+    startDate: '',
+    endDate: '',
+    isActive: true
+  });
+
+  useEffect(() => {
+    fetchOffers();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    filterOffers();
+  }, [filters, offers]);
+
+  const filterOffers = () => {
+    let result = [...offers];
+
+    if (filters.category !== 'all') {
+      result = result.filter(offer => offer.category === filters.category);
+    }
+
+    if (filters.status !== 'all') {
+      const currentDate = new Date();
+      if (filters.status === 'active') {
+        result = result.filter(offer => 
+          offer.isActive && 
+          new Date(offer.startDate) <= currentDate && 
+          new Date(offer.endDate) >= currentDate
+        );
+      } else if (filters.status === 'scheduled') {
+        result = result.filter(offer => 
+          offer.isActive && 
+          new Date(offer.startDate) > currentDate
+        );
+      } else if (filters.status === 'expired') {
+        result = result.filter(offer => 
+          !offer.isActive || 
+          new Date(offer.endDate) < currentDate
+        );
+      }
+    }
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(offer =>
+        offer.title.toLowerCase().includes(searchLower) ||
+        offer.description.toLowerCase().includes(searchLower)
+      );
+    }
+
+    setFilteredOffers(result);
+  };
+
+  const fetchOffers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/offers', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
+      });
+      setOffers(response.data);
+    } catch (err) {
+      setError('Failed to fetch offers');
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/products');
+      setProducts(response.data.products || []);
+    } catch (err) {
+      setError('Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      Object.keys(offerForm).forEach(key => {
+        if (key === 'products') {
+          formData.append(key, JSON.stringify(offerForm[key]));
+        } else {
+          formData.append(key, offerForm[key]);
+        }
+      });
+
+      if (selectedImage) {
+        formData.append('bannerImage', selectedImage);
+      }
+
+      if (isEditing && selectedOffer) {
+        await axios.patch(
+          `http://localhost:5000/api/offers/${selectedOffer._id}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+      } else {
+        await axios.post('http://localhost:5000/api/offers', formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      }
+
+      setSuccessMessage(isEditing ? 'Offer updated successfully!' : 'Offer added successfully!');
+      resetForm();
+      fetchOffers();
+    } catch (err) {
+      setError('Failed to save offer');
+    }
+  };
+
+  const handleEdit = (offer) => {
+    setSelectedOffer(offer);
+    setOfferForm({
+      title: offer.title,
+      description: offer.description,
+      category: offer.category,
+      discountPercentage: offer.discountPercentage,
+      products: offer.products.map(p => p._id),
+      startDate: offer.startDate.split('T')[0],
+      endDate: offer.endDate.split('T')[0],
+      isActive: offer.isActive
+    });
+    setImagePreview(offer.bannerImage || '/placeholder.jpg');
+    setIsEditing(true);
+  };
+
+  const handleDelete = async (offerId) => {
+    if (window.confirm('Are you sure you want to delete this offer?')) {
+      try {
+        await axios.delete(`http://localhost:5000/api/offers/${offerId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
+        });
+        setSuccessMessage('Offer deleted successfully!');
+        fetchOffers();
+      } catch (err) {
+        setError('Failed to delete offer');
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setOfferForm({
+      title: '',
+      description: '',
+      category: 'other',
+      discountPercentage: '',
+      products: [],
+      startDate: '',
+      endDate: '',
+      isActive: true
+    });
+    setSelectedImage(null);
+    setImagePreview('');
+    setIsEditing(false);
+    setSelectedOffer(null);
+  };
+
+  const renderProductOption = (product) => (
+    <option key={product._id} value={product._id}>
+      {product.name} - ${product.price.toFixed(2)}
+    </option>
+  );
+
+  const renderSelectedProducts = () => {
+    if (!Array.isArray(products) || products.length === 0) return null;
+
+    const selectedProducts = products.filter(product => 
+      offerForm.products.includes(product._id)
+    );
+
+    return (
+      <div className="selected-products">
+        <h4>Selected Products</h4>
+        <div className="selected-products-grid">
+          {selectedProducts.map(product => (
+            <div key={product._id} className="selected-product-card">
+              <img 
+                src={product.images?.[0] || '/placeholder.jpg'} 
+                alt={product.name}
+                className="product-thumbnail"
+              />
+              <div className="product-info">
+                <h5>{product.name}</h5>
+                <div className="price-info">
+                  <span className="original-price">${product.price.toFixed(2)}</span>
+                  <span className="sale-price">
+                    ${(product.price * (1 - offerForm.discountPercentage / 100)).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="remove-product-btn"
+                onClick={() => {
+                  setOfferForm({
+                    ...offerForm,
+                    products: offerForm.products.filter(id => id !== product._id)
+                  });
+                }}
+              >
+                <FaTrash />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="offer-manager">
+      <div className="offer-form">
+        <h3>{isEditing ? 'Edit Offer' : 'Add New Offer'}</h3>
+        {error && <div className="error-message">{error}</div>}
+        {successMessage && <div className="success-message">{successMessage}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              value={offerForm.title}
+              onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })}
+              required
+              className="form-control"
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="category">Category</label>
+              <select
+                id="category"
+                value={offerForm.category}
+                onChange={(e) => setOfferForm({ ...offerForm, category: e.target.value })}
+                required
+                className="form-control"
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="discountPercentage">Discount Percentage</label>
+              <div className="input-with-icon">
+                <input
+                  type="number"
+                  id="discountPercentage"
+                  value={offerForm.discountPercentage}
+                  onChange={(e) => setOfferForm({ ...offerForm, discountPercentage: e.target.value })}
+                  required
+                  min="0"
+                  max="100"
+                  className="form-control"
+                />
+                <FaTags className="input-icon" />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              value={offerForm.description}
+              onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })}
+              required
+              className="form-control"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="products">Select Products</label>
+            {loading ? (
+              <div className="loading-message">Loading products...</div>
+            ) : (
+              <>
+                <select
+                  id="products"
+                  multiple
+                  value={offerForm.products}
+                  onChange={(e) => setOfferForm({
+                    ...offerForm,
+                    products: Array.from(e.target.selectedOptions, option => option.value)
+                  })}
+                  required
+                  className="form-control product-select"
+                >
+                  {Array.isArray(products) && products.map(renderProductOption)}
+                </select>
+                <small className="help-text">
+                  Hold Ctrl (Windows) or Command (Mac) to select multiple products
+                </small>
+              </>
+            )}
+          </div>
+
+          {renderSelectedProducts()}
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="startDate">Start Date</label>
+              <input
+                type="date"
+                id="startDate"
+                value={offerForm.startDate}
+                onChange={(e) => setOfferForm({ ...offerForm, startDate: e.target.value })}
+                required
+                className="form-control"
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="endDate">End Date</label>
+              <input
+                type="date"
+                id="endDate"
+                value={offerForm.endDate}
+                onChange={(e) => setOfferForm({ ...offerForm, endDate: e.target.value })}
+                required
+                className="form-control"
+                min={offerForm.startDate || new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="bannerImage">Banner Image</label>
+            <input
+              type="file"
+              id="bannerImage"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="form-control"
+              required={!isEditing}
+            />
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={offerForm.isActive}
+                onChange={(e) => setOfferForm({ ...offerForm, isActive: e.target.checked })}
+              />
+              Active
+            </label>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">
+              <FaPlus /> {isEditing ? 'Update Offer' : 'Add Offer'}
+            </button>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="btn btn-secondary"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="offers-list">
+        <div className="offers-header">
+          <h3>Current Offers</h3>
+          <div className="filters">
+            <div className="filter-group">
+              <label htmlFor="categoryFilter">Category:</label>
+              <select
+                id="categoryFilter"
+                value={filters.category}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="filter-control"
+              >
+                <option value="all">All Categories</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="statusFilter">Status:</label>
+              <select
+                id="statusFilter"
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="filter-control"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="expired">Expired</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="searchFilter">Search:</label>
+              <input
+                type="text"
+                id="searchFilter"
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                placeholder="Search offers..."
+                className="filter-control"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Banner</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Discount</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOffers.map(offer => (
+                <tr key={offer._id}>
+                  <td>
+                    <div className="offer-banner-small">
+                      <img src={offer.bannerImage || '/placeholder.jpg'} alt={offer.title} />
+                    </div>
+                  </td>
+                  <td>{offer.title}</td>
+                  <td>{offer.category.charAt(0).toUpperCase() + offer.category.slice(1)}</td>
+                  <td>{offer.discountPercentage}%</td>
+                  <td>
+                    {new Date(offer.startDate).toLocaleDateString()} -
+                    <br />
+                    {new Date(offer.endDate).toLocaleDateString()}
+                  </td>
+                  <td>
+                    <span className={`status ${offer.isActive ? 'active' : 'inactive'}`}>
+                      {offer.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleEdit(offer)}
+                      className="btn btn-icon"
+                      title="Edit"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(offer._id)}
+                      className="btn btn-icon delete"
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default OfferManager; 

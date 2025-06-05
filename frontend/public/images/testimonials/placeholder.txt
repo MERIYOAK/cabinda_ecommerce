@@ -1,0 +1,20 @@
+Please add the following avatar images to this directory:
+
+1. avatar1.jpg - Professional headshot of João Silva
+Size: 200x200px
+Format: JPG
+
+2. avatar2.jpg - Professional headshot of Maria Santos
+Size: 200x200px
+Format: JPG
+
+3. avatar3.jpg - Professional headshot of Pedro Costa
+Size: 200x200px
+Format: JPG
+
+Note: 
+- Images should be square format
+- Professional business attire preferred
+- Neutral background
+- Well-lit faces
+- Optimized for web use 

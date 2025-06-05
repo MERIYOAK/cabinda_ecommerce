@@ -1,0 +1,54 @@
+:root {
+  /* Primary Colors */
+  --primary: #dc1c2c;          /* Rich Vibrant Red - Main Brand Color (adjusted for better visibility) */
+  --primary-dark: #b31523;     /* Deeper Red for Hover States */
+  --primary-light: #ff3b4e;    /* Brighter Red for Accents */
+  --primary-fade: #fff1f3;     /* Very Light Red for Subtle Backgrounds */
+
+  /* Secondary Colors */
+  --secondary: #ffd700;        /* Gold - Complements Red */
+  --secondary-dark: #e6b800;   /* Darker Gold */
+  --secondary-light: #ffe666;  /* Lighter Gold */
+  --secondary-fade: #fff9e6;   /* Very Light Gold for Subtle Backgrounds */
+
+  /* Accent Colors */
+  --accent-1: #1a1a1a;         /* Near Black for Strong Contrast */
+  --accent-2: #f8d7da;         /* Soft Pink for Alerts/Notices */
+  --accent-3: #2c0407;         /* Very Dark Red for Special Elements */
+
+  /* Neutral Colors */
+  --text-dark: #1a1a1a;        /* Near Black for Text */
+  --text-medium: #4a4a4a;      /* Dark Gray for Secondary Text */
+  --text-light: #767676;       /* Light Gray for Tertiary Text */
+  
+  /* Background Colors */
+  --bg-primary: #ffffff;       /* White */
+  --bg-secondary: #f9f9f9;     /* Light Gray (slightly warmer) */
+  --bg-tertiary: #f1f1f1;      /* Slightly Darker Gray */
+
+  /* Status Colors */
+  --success: #28a745;          /* Green */
+  --warning: #ffc107;          /* Yellow */
+  --error: #dc1c2c;            /* Red (matching primary) */
+  --info: #17a2b8;            /* Blue */
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  --gradient-secondary: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+  --gradient-red-gold: linear-gradient(135deg, var(--primary), var(--secondary));
+  --gradient-dark: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+  --gradient-light: linear-gradient(135deg, var(--primary-fade), var(--secondary-fade));
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-primary: 0 4px 12px rgba(220, 28, 44, 0.25);
+  --shadow-gold: 0 4px 12px rgba(255, 215, 0, 0.25);
+
+  /* Special Effects */
+  --overlay-dark: rgba(26, 26, 26, 0.7);
+  --overlay-light: rgba(255, 255, 255, 0.9);
+  --overlay-red: rgba(220, 28, 44, 0.1);
+  --overlay-gold: rgba(255, 215, 0, 0.1);
+} 

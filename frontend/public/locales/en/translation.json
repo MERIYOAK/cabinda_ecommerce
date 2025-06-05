@@ -1,0 +1,50 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "required": "Required"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "products": {
+    "title": "Products",
+    "name": "Product Name",
+    "description": "Description",
+    "addProduct": "Add Product",
+    "editProduct": "Edit Product",
+    "deleteProduct": "Delete Product",
+    "price": "Price",
+    "category": "Category",
+    "stock": "Stock",
+    "images": "Images"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "users": "Users",
+    "settings": "Settings",
+    "manageProducts": "Manage Products",
+    "viewOrders": "View Orders",
+    "manageUsers": "Manage Users",
+    "siteSettings": "Site Settings"
+  },
+  "validation": {
+    "required": "This field is required",
+    "bothLanguagesRequired": "Both English and Portuguese translations are required"
+  },
+  "languages": {
+    "en": "English",
+    "pt": "Portuguese"
+  }
+} 

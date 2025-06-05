@@ -1,0 +1,37 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "required": "Obrigatório"
+  },
+  "nav": {
+    "home": "Início",
+    "products": "Produtos",
+    "about": "Sobre",
+    "contact": "Contato"
+  },
+  "products": {
+    "title": "Produtos",
+    "addProduct": "Adicionar Produto",
+    "editProduct": "Editar Produto",
+    "deleteProduct": "Excluir Produto",
+    "price": "Preço",
+    "category": "Categoria",
+    "stock": "Estoque",
+    "images": "Imagens"
+  },
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "bothLanguagesRequired": "As traduções em inglês e português são obrigatórias"
+  },
+  "languages": {
+    "en": "Inglês",
+    "pt": "Português"
+  }
+} 
