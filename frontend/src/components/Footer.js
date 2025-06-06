@@ -56,7 +56,7 @@ function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} RetailShop. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} RetailShop. All rights reserved. Developed by <a href="https://meronvault.com" target="_blank" rel="noopener noreferrer">Meroni</a></p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <span className="separator">|</span>
