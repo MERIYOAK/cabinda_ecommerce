@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa';
+import { FaBars, FaWhatsapp } from 'react-icons/fa';
 import './Navbar.css';
+import shopLogo from '../images/shop-logo.jpg';
 
 const ScrollNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -48,9 +49,12 @@ const ScrollNavbar = () => {
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isHidden ? 'hidden' : ''}`}>
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          RetailShop
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Link to="/" className="navbar-logo">
+            <img src={shopLogo} alt="Shop Logo" className="nav-logo-img" />
+            <span>Cabinda Shop</span>
+          </Link>
+        </div>
 
         <ul className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <li className="nav-item">
@@ -76,6 +80,14 @@ const ScrollNavbar = () => {
         </ul>
 
         <div className="nav-icons">
+          <a 
+            href="https://wa.me/+244999999999" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="whatsapp-link"
+          >
+            <FaWhatsapp />
+          </a>
           <div className="mobile-menu-icon" onClick={toggleMobileMenu}>
             <FaBars />
           </div>

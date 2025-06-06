@@ -349,6 +349,8 @@
     padding: 4rem 0;
   }
 
+
+
   .newsletter-title {
     font-size: 2rem;
   }
@@ -418,7 +420,7 @@
 .home .newsletter-content {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 20px;
 }
 
 .home .newsletter h2 {

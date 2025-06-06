@@ -1083,6 +1083,26 @@ h2::after {
   }
 }
 
+@media screen and (max-width: 768px) {
+  .home {
+    padding: 0;
+  }
+
+  .slider-controls {
+    display: none;
+  }
+
+  .announcements {
+    padding: 0;
+  }
+
+  .products-grid {
+    padding: 25px;
+  }
+
+
+}
+
 @media (max-width: 480px) {
   .features-grid {
     grid-template-columns: 1fr;
