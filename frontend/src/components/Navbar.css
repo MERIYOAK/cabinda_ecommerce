@@ -216,6 +216,7 @@ color: #ffffff;;
   .nav-menu.active {
     display: flex;
     animation: slideDown 0.3s ease forwards;
+    background: linear-gradient(90deg, #1a1a2e, #16213e, #1a1a2e);
   }
 
   @keyframes slideDown {
