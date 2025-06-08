@@ -1,7 +1,9 @@
 @import '../styles/colors.css';
 
 .navbar {
-  background-color: var(--bg-primary);
+  background: linear-gradient(90deg, #1a1a2e, #16213e, #1a1a2e);
+  background-size: 200% 100%;
+  color: #ffffff;
   position: fixed;
   top: 0;
   left: 0;
@@ -35,7 +37,7 @@
 .navbar-logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary);
+   color: #ffffff;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -64,7 +66,7 @@
 }
 
 .navbar-logo:hover {
-  color: var(--primary-dark);
+   color: var(--primary-dark);
   transform: translateY(-2px);
 }
 
@@ -101,7 +103,7 @@
 }
 
 .nav-link {
-  color: var(--text-dark);
+color: #ffffff;;
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem;
@@ -145,7 +147,7 @@
 
 .mobile-menu-icon {
   display: none;
-  color: var(--text-dark);
+  color: #ffffff;
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;

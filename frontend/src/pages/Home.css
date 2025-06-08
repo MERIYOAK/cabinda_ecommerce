@@ -1,18 +1,19 @@
 .home {
   width: 100%;
-  max-width: 1800px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Hero Slider */
 .hero-slider {
   position: relative;
-  height: 600px;
-  margin: 20px 0;
-  border-radius: 15px;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: none;
   touch-action: pan-y pinch-zoom;
   user-select: none;
 }
@@ -20,13 +21,15 @@
 .slides-container {
   display: flex;
   height: 100%;
+  width: 100%;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
 .hero-slide {
   flex: 0 0 100%;
-  height: 100%;
+  height: 100vh;
+  width: 100%;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -369,7 +372,9 @@
 
 /* Featured Categories */
 .featured-categories {
-  padding: 60px 0;
+  margin: 30px;
+  padding: 30px;
+  background-color: #f8f9fa;
 }
 
 .categories-grid {
@@ -506,11 +511,11 @@
   transform: translateX(100%);
 }
 
-/* Products Grid (Best Sellers & Latest Products) */
+/* Products Grid (Best Sellers & Latest Products) 
 .best-sellers,
 .latest-products {
-  padding: 60px 0;
-}
+  padding: 30px;
+}*/
 
 .products-grid {
   display: grid;
@@ -708,7 +713,7 @@
 
 /* Testimonials */
 .testimonials {
-  padding: 60px 0;
+  padding: 30px;
 }
 
 .testimonials-grid {
@@ -979,6 +984,11 @@ h2::after {
 }
 
 @media (max-width: 768px) {
+  .featured-categories {
+    margin: 10px;
+    padding: 10px;
+  }
+
   .weekly-offers {
     padding: 40px 15px;
   }
@@ -1002,6 +1012,15 @@ h2::after {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .hero-slider {
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .hero-slide {
+    height: 100vh;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1024,13 +1043,20 @@ h2::after {
   .offer-products h4 {
     font-size: 1.1rem;
   }
+
+  .hero-slider {
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .hero-slide {
+    height: 100vh;
+  }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .hero-slider {
-    height: 450px;
-  }
+
 
   .slide-title {
     font-size: 2.5rem;
@@ -1109,10 +1135,6 @@ h2::after {
 }
 
 @media (max-width: 480px) {
-  .hero-slider {
-    height: 350px;
-    margin: 10px 0;
-  }
 
   .slide-title {
     font-size: 2rem;
@@ -1185,10 +1207,6 @@ h2::after {
 @media screen and (max-width: 768px) {
   .home {
     padding: 0;
-  }
-
-  .slider-controls {
-    display: none;
   }
 
   .announcements {
