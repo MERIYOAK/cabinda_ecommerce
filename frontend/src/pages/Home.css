@@ -1333,6 +1333,10 @@ h2::after {
   margin-bottom: 40px;
 }
 
+.latest-products {
+  padding: 20px;
+}
+
 /* Weekly offers section loading state */
 .weekly-offers {
   position: relative;
