@@ -35,13 +35,15 @@ function AnnouncementDetail() {
   }, [id]);
 
   const handleBack = () => {
+    // Set the navigation type to 'back' for scroll restoration
+    window.history.pushState({ type: 'back' }, '');
     navigate(-1);
   };
 
   if (loading) {
     return (
-      <div className="announcement-detail-loading">
-        <div className="loader"></div>
+      <div className="loading-overlay">
+        <LoadingSpinner size="large" color="primary" />
       </div>
     );
   }

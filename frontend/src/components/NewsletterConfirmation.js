@@ -13,22 +13,46 @@ const NewsletterConfirmation = () => {
   useEffect(() => {
     const confirmSubscription = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/newsletter/confirm/${token}`);
-        setStatus('success');
-        setMessage(response.data.message);
+        console.log('Confirming subscription with token:', token);
         
-        // Redirect to home page after 5 seconds
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        };
+
+        // Make sure to encode the token properly
+        const encodedToken = encodeURIComponent(token);
+        const response = await axios.get(
+          `${API_URL}/api/newsletter/confirm/${encodedToken}`,
+          config
+        );
+
+        console.log('Confirmation response:', response.data);
+        
+        setStatus('success');
+        setMessage(response.data.message || 'Successfully confirmed your subscription!');
+        
+        // Redirect after 2 seconds
         setTimeout(() => {
           navigate('/');
-        }, 5000);
+        }, 2000);
       } catch (error) {
+        console.error('Confirmation error:', error.response || error);
+        
         setStatus('error');
-        setMessage(error.response?.data?.message || 'Failed to confirm subscription');
+        const errorMessage = error.response?.data?.message || 
+                           'Failed to confirm subscription. Please try subscribing again.';
+        setMessage(errorMessage);
       }
     };
 
     if (token) {
       confirmSubscription();
+    } else {
+      setStatus('error');
+      setMessage('Invalid confirmation link. Please try subscribing again.');
     }
   }, [token, navigate]);
 
@@ -49,7 +73,7 @@ const NewsletterConfirmation = () => {
             <h2>Subscription Confirmed!</h2>
             <p>{message}</p>
             <p className="redirect-message">
-              You will be redirected to the home page in a few seconds...
+              Redirecting to home page...
             </p>
           </>
         )}

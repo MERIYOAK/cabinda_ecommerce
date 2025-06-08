@@ -71,93 +71,95 @@ function WeeklyOffers() {
 
   return (
     <section className="weekly-offers">
-      <h2>Weekly Special Offers</h2>
-      {loading ? (
-        <div className="loading-overlay">
-          <LoadingSpinner size="large" color="primary" />
-        </div>
-      ) : error ? (
-        <div className="error-message">{error}</div>
-      ) : offers.length === 0 ? (
-        <div>No special offers available</div>
-      ) : (
-        <div className="offers-grid">
-          {offers.map(offer => {
-            if (!offer || typeof offer !== 'object') {
-              console.warn('Invalid offer object:', offer);
-              return null;
-            }
+      <div className="container">
+        <h2>Weekly Special Offerings</h2>
+        {loading ? (
+          <div className="loading-overlay">
+            <LoadingSpinner size="large" color="primary" />
+          </div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : offers.length === 0 ? (
+          <div className="no-offers">No special offers available at the moment.</div>
+        ) : (
+          <div className="offers-grid">
+            {offers.map(offer => {
+              if (!offer || typeof offer !== 'object') {
+                console.warn('Invalid offer object:', offer);
+                return null;
+              }
 
-            // Filter out invalid products
-            const validProducts = offer.products?.filter(product => 
-              product && typeof product === 'object' && product._id
-            ) || [];
+              // Filter out invalid products
+              const validProducts = offer.products?.filter(product => 
+                product && typeof product === 'object' && product._id
+              ) || [];
 
-            return (
-              <div key={offer._id} className="offer-card">
-                <div className="offer-banner">
-                  <img 
-                    src={offer.bannerImage} 
-                    alt={offer.title || 'Special Offer'}
-                    onError={(e) => {
-                      console.error('Failed to load offer image:', offer.bannerImage);
-                      e.target.src = 'https://via.placeholder.com/800x400?text=Offer+Image';
-                    }}
-                  />
-                  <div className="discount-badge">
-                    {typeof offer.discountPercentage === 'number' 
-                      ? `${offer.discountPercentage}% OFF` 
-                      : 'Special Offer'}
-                  </div>
-                </div>
-                <div className="offer-content">
-                  <h3>{offer.title || 'Special Offer'}</h3>
-                  <p>{offer.description || 'Check out our special offer!'}</p>
-                  {validProducts.length > 0 && (
-                    <div className="offer-products">
-                      <h4>Featured Products:</h4>
-                      <div className="product-grid">
-                        {validProducts.map(product => (
-                          <Link 
-                            key={product._id} 
-                            to={`/products/${product._id}`}
-                            className="product-item"
-                          >
-                            <div className="product-image">
-                              <img 
-                                src={product.imageUrl || product.images?.[0]} 
-                                alt={product.name || 'Product Image'}
-                                onError={(e) => {
-                                  e.target.src = 'https://via.placeholder.com/200x200?text=Product+Image';
-                                }}
-                              />
-                            </div>
-                            <div className="product-info">
-                              <h5>{product.name || 'Unnamed Product'}</h5>
-                              <div className="product-price">
-                                <span className="original-price">
-                                  ${formatPrice(product.price)}
-                                </span>
-                                <span className="sale-price">
-                                  ${calculateSalePrice(product.price, offer.discountPercentage)}
-                                </span>
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
+              return (
+                <div key={offer._id} className="offer-card">
+                  <div className="offer-banner">
+                    <img 
+                      src={offer.bannerImage} 
+                      alt={offer.title || 'Special Offer'}
+                      onError={(e) => {
+                        console.error('Failed to load offer image:', offer.bannerImage);
+                        e.target.src = 'https://via.placeholder.com/800x400?text=Offer+Image';
+                      }}
+                    />
+                    <div className="discount-badge">
+                      {typeof offer.discountPercentage === 'number' 
+                        ? `${offer.discountPercentage}% OFF` 
+                        : 'Special Offer'}
                     </div>
-                  )}
-                  <div className="offer-dates">
-                    <p>Valid from: {offer.startDate ? new Date(offer.startDate).toLocaleDateString() : 'N/A'}</p>
-                    <p>Until: {offer.endDate ? new Date(offer.endDate).toLocaleDateString() : 'N/A'}</p>
+                  </div>
+                  <div className="offer-content">
+                    <h3>{offer.title || 'Special Offer'}</h3>
+                    <p>{offer.description || 'Check out our special offer!'}</p>
+                    {validProducts.length > 0 && (
+                      <div className="offer-products">
+                        <h4>Featured Products:</h4>
+                        <div className="product-grid">
+                          {validProducts.map(product => (
+                            <Link 
+                              key={product._id} 
+                              to={`/products/${product._id}`}
+                              className="product-item"
+                            >
+                              <div className="product-image">
+                                <img 
+                                  src={product.imageUrl || product.images?.[0]} 
+                                  alt={product.name || 'Product Image'}
+                                  onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/200x200?text=Product+Image';
+                                  }}
+                                />
+                              </div>
+                              <div className="product-info">
+                                <h5>{product.name || 'Unnamed Product'}</h5>
+                                <div className="product-price">
+                                  <span className="original-price">
+                                    ${formatPrice(product.price)}
+                                  </span>
+                                  <span className="sale-price">
+                                    ${calculateSalePrice(product.price, offer.discountPercentage)}
+                                  </span>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="offer-dates">
+                      <p>Valid from: {offer.startDate ? new Date(offer.startDate).toLocaleDateString() : 'N/A'}</p>
+                      <p>Until: {offer.endDate ? new Date(offer.endDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

@@ -4,6 +4,7 @@ const Newsletter = require('../models/Newsletter');
 const PendingSubscription = require('../models/PendingSubscription');
 const { generateToken, sendConfirmationEmail, sendWelcomeEmail } = require('../utils/emailService');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
+const { sendEmail } = require('../utils/mailer');
 
 // Public routes
 // Get subscription status
@@ -95,7 +96,8 @@ router.get('/confirm/:token', async (req, res) => {
     if (!pendingSubscription) {
       console.log('No pending subscription found for token:', token);
       return res.status(400).json({
-        message: 'Invalid or expired confirmation link. Please try subscribing again.'
+        message: 'This confirmation link has expired or has already been used. Please subscribe again to receive a new confirmation link.',
+        code: 'INVALID_TOKEN'
       });
     }
 
@@ -199,16 +201,20 @@ router.post('/send', verifyToken, isAdmin, async (req, res) => {
 
     // Create HTML template for the newsletter
     const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">${subject}</h2>
-        <div style="color: #666; line-height: 1.6;">
-          ${message}
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
+          <h2 style="color: white; margin: 0; text-align: center;">${subject}</h2>
         </div>
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-        <p style="color: #999; font-size: 12px;">
-          You received this email because you're subscribed to our newsletter. 
-          If you wish to unsubscribe, please visit our website.
-        </p>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
+          <div style="color: #666; line-height: 1.6;">
+            ${message}
+          </div>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+          <p style="color: #999; font-size: 12px;">
+            You received this email because you're subscribed to our newsletter. 
+            If you wish to unsubscribe, please visit our website.
+          </p>
+        </div>
       </div>
     `;
 
@@ -216,7 +222,7 @@ router.post('/send', verifyToken, isAdmin, async (req, res) => {
     const emailPromises = subscribers.map(subscriber => 
       sendEmail({
         to: subscriber.email,
-        subject,
+        subject: subject,
         html: htmlContent
       })
     );
@@ -229,7 +235,10 @@ router.post('/send', verifyToken, isAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error('Error sending newsletter:', error);
-    res.status(500).json({ message: 'Error sending newsletter' });
+    res.status(500).json({ 
+      message: 'Error sending newsletter',
+      error: error.message 
+    });
   }
 });
 

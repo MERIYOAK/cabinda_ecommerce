@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './ProductForm.css';
+import LoadingSpinner from './LoadingSpinner';
 
 const ProductForm = () => {
   const navigate = useNavigate();
@@ -60,7 +61,11 @@ const ProductForm = () => {
     }));
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="loading-overlay">
+      <LoadingSpinner size="large" color="primary" />
+    </div>
+  );
   if (error) return <div className="error">{error}</div>;
 
   return (

@@ -9,6 +9,7 @@ import Admin from './pages/admin/Admin';
 import ProductForm from './components/ProductForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import AnnouncementDetail from './pages/AnnouncementDetail';
+import NewsletterConfirmation from './components/NewsletterConfirmation';
 
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/announcement/:id" element={<AnnouncementDetail />} />
+      <Route path="/newsletter/confirm/:token" element={<NewsletterConfirmation />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route
         path="/admin"

@@ -5,10 +5,9 @@ const LoadingSpinner = ({ size = 'medium', color = 'primary' }) => {
   return (
     <div className={`loading-spinner-container ${size}`}>
       <div className={`loading-spinner ${color}`}>
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
-        <div className="spinner-ring"></div>
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
     </div>
   );

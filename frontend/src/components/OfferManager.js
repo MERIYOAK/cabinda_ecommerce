@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaFilter, FaPlus, FaTags } from 'react-icons/fa';
 import './OfferManager.css';
+import LoadingSpinner from './LoadingSpinner';
 
 function OfferManager() {
   const [offers, setOffers] = useState([]);
@@ -257,172 +258,178 @@ function OfferManager() {
 
   return (
     <div className="offer-manager">
-      <div className="offer-form">
-        <h3>{isEditing ? 'Edit Offer' : 'Add New Offer'}</h3>
-        {error && <div className="error-message">{error}</div>}
-        {successMessage && <div className="success-message">{successMessage}</div>}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              value={offerForm.title}
-              onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })}
-              required
-              className="form-control"
-            />
-          </div>
-
-          <div className="form-row">
+      {loading ? (
+        <div className="loading-overlay">
+          <LoadingSpinner size="large" color="primary" />
+        </div>
+      ) : (
+        <div className="offer-form">
+          <h3>{isEditing ? 'Edit Offer' : 'Add New Offer'}</h3>
+          {error && <div className="error-message">{error}</div>}
+          {successMessage && <div className="success-message">{successMessage}</div>}
+          
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="category">Category</label>
-              <select
-                id="category"
-                value={offerForm.category}
-                onChange={(e) => setOfferForm({ ...offerForm, category: e.target.value })}
+              <label htmlFor="title">Title</label>
+              <input
+                type="text"
+                id="title"
+                value={offerForm.title}
+                onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })}
                 required
                 className="form-control"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="discountPercentage">Discount Percentage</label>
-              <div className="input-with-icon">
-                <input
-                  type="number"
-                  id="discountPercentage"
-                  value={offerForm.discountPercentage}
-                  onChange={(e) => setOfferForm({ ...offerForm, discountPercentage: e.target.value })}
-                  required
-                  min="0"
-                  max="100"
-                  className="form-control"
-                />
-                <FaTags className="input-icon" />
-              </div>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              value={offerForm.description}
-              onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })}
-              required
-              className="form-control"
-              rows="4"
-            ></textarea>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="products">Select Products</label>
-            {loading ? (
-              <div className="loading-message">Loading products...</div>
-            ) : (
-              <>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="category">Category</label>
                 <select
-                  id="products"
-                  multiple
-                  value={offerForm.products}
-                  onChange={(e) => setOfferForm({
-                    ...offerForm,
-                    products: Array.from(e.target.selectedOptions, option => option.value)
-                  })}
+                  id="category"
+                  value={offerForm.category}
+                  onChange={(e) => setOfferForm({ ...offerForm, category: e.target.value })}
                   required
-                  className="form-control product-select"
+                  className="form-control"
                 >
-                  {Array.isArray(products) && products.map(renderProductOption)}
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
                 </select>
-                <small className="help-text">
-                  Hold Ctrl (Windows) or Command (Mac) to select multiple products
-                </small>
-              </>
-            )}
-          </div>
-
-          {renderSelectedProducts()}
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="startDate">Start Date</label>
-              <input
-                type="date"
-                id="startDate"
-                value={offerForm.startDate}
-                onChange={(e) => setOfferForm({ ...offerForm, startDate: e.target.value })}
-                required
-                className="form-control"
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="endDate">End Date</label>
-              <input
-                type="date"
-                id="endDate"
-                value={offerForm.endDate}
-                onChange={(e) => setOfferForm({ ...offerForm, endDate: e.target.value })}
-                required
-                className="form-control"
-                min={offerForm.startDate || new Date().toISOString().split('T')[0]}
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="bannerImage">Banner Image</label>
-            <input
-              type="file"
-              id="bannerImage"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="form-control"
-              required={!isEditing}
-            />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Preview" />
               </div>
-            )}
-          </div>
 
-          <div className="form-group checkbox-group">
-            <label>
+              <div className="form-group">
+                <label htmlFor="discountPercentage">Discount Percentage</label>
+                <div className="input-with-icon">
+                  <input
+                    type="number"
+                    id="discountPercentage"
+                    value={offerForm.discountPercentage}
+                    onChange={(e) => setOfferForm({ ...offerForm, discountPercentage: e.target.value })}
+                    required
+                    min="0"
+                    max="100"
+                    className="form-control"
+                  />
+                  <FaTags className="input-icon" />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea
+                id="description"
+                value={offerForm.description}
+                onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })}
+                required
+                className="form-control"
+                rows="4"
+              ></textarea>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="products">Select Products</label>
+              {loading ? (
+                <div className="loading-message">Loading products...</div>
+              ) : (
+                <>
+                  <select
+                    id="products"
+                    multiple
+                    value={offerForm.products}
+                    onChange={(e) => setOfferForm({
+                      ...offerForm,
+                      products: Array.from(e.target.selectedOptions, option => option.value)
+                    })}
+                    required
+                    className="form-control product-select"
+                  >
+                    {Array.isArray(products) && products.map(renderProductOption)}
+                  </select>
+                  <small className="help-text">
+                    Hold Ctrl (Windows) or Command (Mac) to select multiple products
+                  </small>
+                </>
+              )}
+            </div>
+
+            {renderSelectedProducts()}
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="startDate">Start Date</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  value={offerForm.startDate}
+                  onChange={(e) => setOfferForm({ ...offerForm, startDate: e.target.value })}
+                  required
+                  className="form-control"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="endDate">End Date</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  value={offerForm.endDate}
+                  onChange={(e) => setOfferForm({ ...offerForm, endDate: e.target.value })}
+                  required
+                  className="form-control"
+                  min={offerForm.startDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bannerImage">Banner Image</label>
               <input
-                type="checkbox"
-                checked={offerForm.isActive}
-                onChange={(e) => setOfferForm({ ...offerForm, isActive: e.target.checked })}
+                type="file"
+                id="bannerImage"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="form-control"
+                required={!isEditing}
               />
-              Active
-            </label>
-          </div>
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                </div>
+              )}
+            </div>
 
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary">
-              <FaPlus /> {isEditing ? 'Update Offer' : 'Add Offer'}
-            </button>
-            {isEditing && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="btn btn-secondary"
-              >
-                Cancel Edit
+            <div className="form-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={offerForm.isActive}
+                  onChange={(e) => setOfferForm({ ...offerForm, isActive: e.target.checked })}
+                />
+                Active
+              </label>
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="btn btn-primary">
+                <FaPlus /> {isEditing ? 'Update Offer' : 'Add Offer'}
               </button>
-            )}
-          </div>
-        </form>
-      </div>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="btn btn-secondary"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="offers-list">
         <div className="offers-header">

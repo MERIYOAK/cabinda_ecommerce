@@ -2,20 +2,28 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const multer = require('multer');
+const { uploadToS3 } = require('../config/s3');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
+const { v4: uuidv4 } = require('uuid');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+// Valid categories
+const VALID_CATEGORIES = ['Foodstuffs', 'Drinks', 'Fashion', 'Home & Living'];
+
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
-  }
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'));
+    }
+  },
 });
-
-const upload = multer({ storage: storage });
 
 // Public Routes
 // Get all products with optional filters
@@ -48,7 +56,6 @@ router.get('/public', async (req, res) => {
           query = query.sort('name');
           break;
         default:
-          // If an invalid sort option is provided, default to newest
           query = query.sort('-createdAt');
       }
     }
@@ -90,29 +97,85 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
 });
 
 // Create new product
-router.post('/', verifyToken, isAdmin, async (req, res) => {
+router.post('/', verifyToken, isAdmin, upload.single('image'), async (req, res) => {
   try {
-    const product = new Product(req.body);
+    let imageUrl = '';
+    if (req.file) {
+      // Upload image to S3
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExtension}`;
+      imageUrl = await uploadToS3(req.file, fileName);
+    } else {
+      return res.status(400).json({ message: 'Product image is required' });
+    }
+
+    // Validate and capitalize category
+    const category = req.body.category;
+    const normalizedCategory = VALID_CATEGORIES.find(
+      validCat => validCat.toLowerCase() === category.toLowerCase()
+    );
+    
+    if (!normalizedCategory) {
+      return res.status(400).json({ 
+        message: `Invalid category. Must be one of: ${VALID_CATEGORIES.join(', ')}` 
+      });
+    }
+
+    const productData = {
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      category: normalizedCategory, // Use the properly capitalized category
+      stock: parseInt(req.body.stock),
+      imageUrl: imageUrl,
+      isOnSale: req.body.isOnSale === 'true',
+      salePrice: req.body.isOnSale === 'true' ? parseFloat(req.body.salePrice) : undefined
+    };
+
+    const product = new Product(productData);
     const savedProduct = await product.save();
     res.status(201).json({ product: savedProduct });
   } catch (error) {
+    console.error('Error creating product:', error);
     res.status(400).json({ message: error.message });
   }
 });
 
 // Update product
-router.put('/:id', verifyToken, isAdmin, async (req, res) => {
+router.put('/:id', verifyToken, isAdmin, upload.single('image'), async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.json({ product });
+
+    let imageUrl = product.imageUrl;
+    if (req.file) {
+      // Upload new image to S3
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExtension}`;
+      imageUrl = await uploadToS3(req.file, fileName);
+    }
+
+    const updateData = {
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      category: req.body.category,
+      stock: parseInt(req.body.stock),
+      imageUrl: imageUrl,
+      isOnSale: req.body.isOnSale === 'true',
+      salePrice: req.body.isOnSale === 'true' ? parseFloat(req.body.salePrice) : undefined
+    };
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+    res.json({ product: updatedProduct });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(400).json({ message: error.message });
   }
 });
@@ -120,11 +183,13 @@ router.put('/:id', verifyToken, isAdmin, async (req, res) => {
 // Delete product
 router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.json({ message: 'Product deleted successfully' });
+
+    await product.remove();
+    res.json({ message: 'Product removed successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

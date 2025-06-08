@@ -7,18 +7,21 @@ const { uploadToS3, deleteFromS3 } = require('../config/s3');
 const { v4: uuidv4 } = require('uuid');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'), false);
+    }
   }
 });
-
-const upload = multer({ storage: storage });
 
 // Helper function to populate and format offer data
 const populateOfferProducts = async (offers) => {
@@ -33,11 +36,24 @@ const populateOfferProducts = async (offers) => {
       
       if (offerObj.products && Array.isArray(offerObj.products)) {
         // Fetch all products for this offer
-        const productIds = offerObj.products.filter(id => id && typeof id === 'string');
-        const products = await Product.find({ _id: { $in: productIds } });
-        
-        // Replace product IDs with full product objects
-        offerObj.products = products.map(product => product.toObject());
+        const productIds = offerObj.products.map(id => 
+          id.toString ? id.toString() : id
+        ).filter(id => id && typeof id === 'string');
+
+        const products = await Product.find({ 
+          _id: { $in: productIds } 
+        }).lean();
+
+        // Create a map for quick product lookup
+        const productMap = products.reduce((map, product) => {
+          map[product._id.toString()] = product;
+          return map;
+        }, {});
+
+        // Maintain the order of products as in the offer
+        offerObj.products = productIds
+          .map(id => productMap[id])
+          .filter(product => product); // Remove any null/undefined products
       } else {
         offerObj.products = [];
       }
@@ -103,62 +119,173 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
 });
 
 // Create new offer
-router.post('/', verifyToken, isAdmin, async (req, res) => {
+router.post('/', verifyToken, isAdmin, upload.single('bannerImage'), async (req, res) => {
   try {
-    // Validate product IDs before creating offer
-    if (req.body.products && Array.isArray(req.body.products)) {
-      const validProducts = await Product.find({
-        _id: { $in: req.body.products }
+    console.log('Received offer creation request');
+    console.log('Request body:', req.body);
+    console.log('File:', req.file);
+    console.log('Products in request:', req.body.products);
+    console.log('Products[] in request:', req.body['products[]']);
+
+    // Validate required fields
+    if (!req.body.title || !req.body.description || !req.body.discountPercentage || 
+        !req.body.startDate || !req.body.endDate || !req.file) {
+      console.log('Missing required fields:', {
+        title: !req.body.title,
+        description: !req.body.description,
+        discountPercentage: !req.body.discountPercentage,
+        startDate: !req.body.startDate,
+        endDate: !req.body.endDate,
+        file: !req.file
       });
-      
-      if (validProducts.length !== req.body.products.length) {
-        return res.status(400).json({
-          message: 'One or more product IDs are invalid'
-        });
-      }
+      return res.status(400).json({
+        message: 'Missing required fields. Please provide title, description, discountPercentage, startDate, endDate, and bannerImage'
+      });
     }
 
-    const offer = new Offer(req.body);
+    // Validate products array
+    const products = req.body.products || req.body['products[]'] || [];
+    console.log('Products after initial processing:', products);
+    
+    const productIds = Array.isArray(products) ? products : [products];
+    console.log('Product IDs after array conversion:', productIds);
+    
+    if (productIds.length === 0) {
+      console.log('No products found in request');
+      return res.status(400).json({
+        message: 'At least one product must be selected for the offer'
+      });
+    }
+
+    // Validate product IDs
+    console.log('Validating product IDs:', productIds);
+    const validProducts = await Product.find({
+      _id: { $in: productIds }
+    });
+    console.log('Found valid products:', validProducts.map(p => p._id));
+    
+    if (validProducts.length !== productIds.length) {
+      console.log('Invalid products found. Valid products:', validProducts.length, 'Expected:', productIds.length);
+      return res.status(400).json({
+        message: 'One or more product IDs are invalid'
+      });
+    }
+
+    // Upload banner image to S3
+    const fileExtension = req.file.originalname.split('.').pop();
+    const fileName = `offers/${uuidv4()}.${fileExtension}`;
+    const bannerImageUrl = await uploadToS3(req.file, fileName);
+
+    // Create offer object
+    const offerData = {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category || 'seasonal',
+      discountPercentage: Number(req.body.discountPercentage),
+      products: productIds,
+      startDate: new Date(req.body.startDate),
+      endDate: new Date(req.body.endDate),
+      isActive: req.body.isActive === 'true',
+      bannerImage: bannerImageUrl
+    };
+    console.log('Creating offer with data:', offerData);
+
+    const offer = new Offer(offerData);
     const savedOffer = await offer.save();
+    console.log('Offer saved successfully:', savedOffer._id);
     
     // Populate and return the new offer
     const populatedOffer = await populateOfferProducts(savedOffer);
     res.status(201).json(populatedOffer);
   } catch (error) {
+    console.error('Error creating offer:', error);
+    console.error('Error stack:', error.stack);
     res.status(400).json({ message: error.message });
   }
 });
 
 // Update offer
-router.put('/:id', verifyToken, isAdmin, async (req, res) => {
+router.put('/:id', verifyToken, isAdmin, upload.single('bannerImage'), async (req, res) => {
   try {
-    // Validate product IDs if they're being updated
-    if (req.body.products && Array.isArray(req.body.products)) {
-      const validProducts = await Product.find({
-        _id: { $in: req.body.products }
-      });
+    console.log('Updating offer:', req.params.id);
+    console.log('Request body:', req.body);
+    console.log('Products in request:', req.body.products);
+    console.log('Products[] in request:', req.body['products[]']);
+    
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) {
+      return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Validate products array if provided
+    let productIds = offer.products;
+    if (req.body.products || req.body['products[]']) {
+      const products = req.body.products || req.body['products[]'];
+      productIds = Array.isArray(products) ? products : [products];
       
-      if (validProducts.length !== req.body.products.length) {
+      console.log('Processing product IDs:', productIds);
+      
+      // Validate product IDs
+      const validProducts = await Product.find({
+        _id: { $in: productIds }
+      });
+      console.log('Found valid products:', validProducts.map(p => p._id));
+      
+      if (validProducts.length !== productIds.length) {
+        console.log('Invalid products found. Valid products:', validProducts.length, 'Expected:', productIds.length);
         return res.status(400).json({
           message: 'One or more product IDs are invalid'
         });
       }
     }
 
-    const offer = await Offer.findByIdAndUpdate(
+    // Handle banner image update if provided
+    let bannerImageUrl = offer.bannerImage;
+    if (req.file) {
+      // Delete old image from S3 if it exists
+      if (offer.bannerImage) {
+        const oldImageKey = offer.bannerImage.split('/').slice(-2).join('/');
+        try {
+          await deleteFromS3(oldImageKey);
+        } catch (error) {
+          console.error('Error deleting old banner image:', error);
+        }
+      }
+
+      // Upload new image
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileName = `offers/${uuidv4()}.${fileExtension}`;
+      bannerImageUrl = await uploadToS3(req.file, fileName);
+    }
+
+    // Update offer data
+    const updateData = {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      discountPercentage: Number(req.body.discountPercentage),
+      products: productIds,
+      startDate: new Date(req.body.startDate),
+      endDate: new Date(req.body.endDate),
+      isActive: req.body.isActive === 'true',
+      bannerImage: bannerImageUrl
+    };
+
+    console.log('Updating offer with data:', updateData);
+
+    const updatedOffer = await Offer.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
     
-    if (!offer) {
-      return res.status(404).json({ message: 'Offer not found' });
-    }
-    
     // Populate and return the updated offer
-    const populatedOffer = await populateOfferProducts(offer);
+    const populatedOffer = await populateOfferProducts(updatedOffer);
+    console.log('Successfully updated offer:', populatedOffer._id);
     res.json(populatedOffer);
   } catch (error) {
+    console.error('Error updating offer:', error);
+    console.error('Error stack:', error.stack);
     res.status(400).json({ message: error.message });
   }
 });
@@ -166,10 +293,20 @@ router.put('/:id', verifyToken, isAdmin, async (req, res) => {
 // Delete offer
 router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
-    const offer = await Offer.findByIdAndDelete(req.params.id);
+    const offer = await Offer.findById(req.params.id);
     if (!offer) {
       return res.status(404).json({ message: 'Offer not found' });
     }
+
+    // Delete banner image from S3
+    const imageKey = offer.bannerImage.split('/').slice(-2).join('/');
+    try {
+      await deleteFromS3(imageKey);
+    } catch (error) {
+      console.error('Error deleting banner image:', error);
+    }
+
+    await offer.deleteOne();
     res.json({ message: 'Offer deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });

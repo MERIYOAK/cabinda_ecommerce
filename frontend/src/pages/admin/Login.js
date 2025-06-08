@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import API_URL from '../../config/api';
 import './Login.css';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    username: '',
+    email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,41 +22,60 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your authentication logic here
-    // For now, just navigate to admin dashboard
-    navigate('/admin/dashboard');
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/api/admin/login`, credentials);
+      localStorage.setItem('adminToken', response.data.token);
+      // Set the token in axios default headers for future requests
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      navigate('/admin');
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      setError(error.response?.data?.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="admin-login-container">
-      <form className="admin-login-form" onSubmit={handleSubmit}>
-        <h2>Admin Login</h2>
-        <div className="form-group">
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={credentials.username}
-            onChange={handleChange}
-            required
-          />
+    <div className="login-container">
+      {loading ? (
+        <div className="loading-overlay">
+          <LoadingSpinner size="medium" color="primary" />
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={credentials.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="login-form">
+          <h2>Admin Login</h2>
+          {error && <div className="error-message">{error}</div>}
+          <div className="form-group">
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={handleChange}
+              placeholder="Email"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={handleChange}
+              placeholder="Password"
+              required
+            />
+          </div>
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+      )}
     </div>
   );
 };

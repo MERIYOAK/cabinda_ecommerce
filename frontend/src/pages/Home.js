@@ -134,13 +134,13 @@ function Home() {
           console.warn('No announcements found');
         }
 
+        // Ensure we only take the top 4 best sellers
+        setBestSellers(bestSellersData.slice(0, 4));
         setLatestProducts(latestProductsData);
-        setBestSellers(bestSellersData);
         setAnnouncements(announcementsData);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error.response || error);
-        // Set empty arrays to prevent undefined errors in the UI
         setLatestProducts([]);
         setBestSellers([]);
         setAnnouncements([]);
@@ -537,32 +537,34 @@ function Home() {
         ) : bestSellers.length === 0 ? (
           <div>No best sellers available</div>
         ) : (
-          <div className="products-grid">
-            {bestSellers.map(product => (
-              <div key={product._id} className="product-card">
-                <img 
-                  src={product.imageUrl} 
-                  alt={product.name}
-                  onError={(e) => {
-                    console.error('Image failed to load:', {
-                      product: product.name,
-                      url: product.imageUrl
-                    });
-                    e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
-                  }}
-                />
-                <h3>{product.name}</h3>
-                <p className="price">${product.price.toLocaleString()}</p>
-                <a 
-                  href={`https://wa.me/244938992743?text=I'm interested in ${encodeURIComponent(product.name)} priced at $${product.price}`} 
-                  className="whatsapp-button"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaWhatsapp /> Chat on WhatsApp
-                </a>
-              </div>
-            ))}
+          <div className="container">
+            <div className="products-grid">
+              {bestSellers.map(product => (
+                <div key={product._id} className="product-card">
+                  <img 
+                    src={product.imageUrl} 
+                    alt={product.name}
+                    onError={(e) => {
+                      console.error('Image failed to load:', {
+                        product: product.name,
+                        url: product.imageUrl
+                      });
+                      e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
+                    }}
+                  />
+                  <h3>{product.name}</h3>
+                  <p className="price">${product.price.toLocaleString()}</p>
+                  <a 
+                    href={`https://wa.me/244938992743?text=I'm interested in ${encodeURIComponent(product.name)} priced at $${product.price}`} 
+                    className="whatsapp-button"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaWhatsapp /> Chat on WhatsApp
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>

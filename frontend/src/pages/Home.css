@@ -785,11 +785,14 @@ h2::after {
   padding: 60px 20px;
   background-color: #f8f9fa;
   margin: 40px 0;
+  position: relative;
 }
 
 .announcements .container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  position: relative;
 }
 
 .announcements h2 {
@@ -925,6 +928,102 @@ h2::after {
 .announcement-card.news .announcement-type {
   background-color: #e3f2fd;
   color: #1976d2;
+}
+
+/* Announcements loading state */
+.announcements .loading-overlay {
+  min-height: 400px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  margin: 0;
+  position: relative;
+}
+
+.announcements .loading-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+  border-radius: 12px;
+}
+
+.announcements .loading-overlay .loading-spinner-container {
+  position: relative;
+  z-index: 2;
+  padding: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .weekly-offers .container {
+    max-width: 960px;
+  }
+  
+  .offers-grid:not(.single-offer) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .weekly-offers .container {
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .weekly-offers {
+    padding: 40px 15px;
+  }
+
+  .weekly-offers .container {
+    max-width: 600px;
+  }
+
+  .offers-grid:not(.single-offer) {
+    grid-template-columns: 1fr;
+  }
+
+  .offer-header img {
+    height: 250px;
+  }
+
+  .offer-content {
+    padding: 20px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .weekly-offers {
+    padding: 30px 10px;
+  }
+
+  .offer-header img {
+    height: 200px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .offer-content h3 {
+    font-size: 1.2rem;
+  }
+
+  .offer-products h4 {
+    font-size: 1.1rem;
+  }
 }
 
 /* Responsive Design */
@@ -1099,8 +1198,6 @@ h2::after {
   .products-grid {
     padding: 25px;
   }
-
-
 }
 
 @media (max-width: 480px) {
@@ -1173,4 +1270,59 @@ h2::after {
 
 .category-link:hover::before {
   left: 100%;
+}
+
+/* Loading states */
+.loading-overlay {
+  position: relative;
+  min-height: 200px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.loading-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+.loading-overlay .loading-spinner-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Section specific loading states */
+.best-sellers .loading-overlay,
+.latest-products .loading-overlay {
+  min-height: 300px;
+  background: transparent;
+}
+
+/* Ensure sections don't overlap during loading */
+.best-sellers,
+.latest-products {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 40px;
+}
+
+/* Weekly offers section loading state */
+.weekly-offers {
+  position: relative;
+  z-index: 1;
+  margin: 40px 0;
+}
+
+.weekly-offers .loading-overlay {
+  min-height: 200px;
+  background: transparent;
 } 

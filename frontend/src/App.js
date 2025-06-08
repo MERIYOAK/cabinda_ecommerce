@@ -5,6 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import ScrollNavbar from './components/ScrollNavbar';
 import Footer from './components/Footer';
 import AppRoutes from './routes';
+import { ScrollToTop } from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import './App.css';
 
 // Create a theme instance
@@ -76,12 +78,14 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
+        <ScrollToTop />
         <div className="App">
           <ScrollNavbar />
           <main className="main-content">
             <AppRoutes />
           </main>
           <Footer />
+          <ScrollToTopButton />
         </div>
       </Router>
     </ThemeProvider>

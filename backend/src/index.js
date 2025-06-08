@@ -3,8 +3,34 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const { S3Client } = require("@aws-sdk/client-s3");
 const connectDB = require('./config/database');
+
+// Validate required environment variables
+const requiredEnvVars = {
+  BUCKET_NAME: process.env.BUCKET_NAME,
+  BUCKET_REGION: process.env.BUCKET_REGION,
+  ACCESS_KEY: process.env.ACCESS_KEY,
+  SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY,
+  BASE_URL: process.env.BASE_URL
+};
+
+// Check for missing environment variables
+const missingEnvVars = Object.entries(requiredEnvVars)
+  .filter(([_, value]) => !value)
+  .map(([key]) => key);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+}
+
+// Debug: Log non-sensitive configuration
+console.log('Environment Configuration:', {
+  bucketName: process.env.BUCKET_NAME,
+  region: process.env.BUCKET_REGION,
+  baseUrl: process.env.BASE_URL,
+  port: process.env.PORT
+});
 
 // Import routes
 const productRoutes = require('./routes/products');
@@ -26,19 +52,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// S3 Configuration
-const s3Client = new S3Client({
-  region: process.env.BUCKET_REGION,
-  credentials: {
-    accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_ACCESS_KEY
-  }
-});
-
 // Middleware
 app.use(cors({
-  origin: process.env.BASE_URL,
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use(express.json());
 
@@ -73,7 +92,10 @@ app.use((err, req, res, next) => {
   if (err.name === 'TokenExpiredError') {
     return res.status(401).json({ message: 'Token expired' });
   }
-  res.status(500).json({ message: 'Something went wrong!' });
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    details: err.message
+  });
 });
 
 // Start server and connect to database
