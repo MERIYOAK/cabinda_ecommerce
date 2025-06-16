@@ -73,7 +73,7 @@
 
 .filters {
   max-height: 0;
-  overflow: hidden;
+  overflow: scroll;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
   transform: translateY(-10px);
@@ -546,6 +546,11 @@
   .filters.show {
     padding: 1rem;
   }
+
+  .search-icon {
+    display: none;
+  }
+
 
   .search-input,
   .category-filter,

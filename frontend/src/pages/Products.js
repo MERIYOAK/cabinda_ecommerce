@@ -200,7 +200,7 @@ const FilterSection = memo(({ initialFilters, onFilterChange }) => {
     <div 
       className="filters-wrapper"
       onMouseEnter={() => !isVisible && setIsVisible(true)}
-      onMouseLeave={() => isVisible && setIsVisible(false)}
+      onMouseLeave={() => isVisible && setIsVisible(true)}
       >
       <button 
         className={`filter-toggle ${isVisible ? 'active' : ''}`}
@@ -225,7 +225,7 @@ const FilterSection = memo(({ initialFilters, onFilterChange }) => {
                 className="search-input"
                 autoComplete="off"
               />
-              <FaSearch className="search-icon" />
+              <FaSearch className="search-icon"/>
             </div>
             <button type="submit" style={{ display: 'none' }}>Search</button>
           </form>
