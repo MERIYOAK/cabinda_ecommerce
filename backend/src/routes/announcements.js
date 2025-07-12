@@ -104,7 +104,7 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
-      limit = 10
+      limit = 5
     } = req.query;
 
     // Build query
@@ -129,8 +129,10 @@ router.get('/', verifyToken, isAdmin, async (req, res) => {
 
     if (search) {
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } }
+        { 'title.pt': { $regex: search, $options: 'i' } },
+        { 'title.en': { $regex: search, $options: 'i' } },
+        { 'content.pt': { $regex: search, $options: 'i' } },
+        { 'content.en': { $regex: search, $options: 'i' } }
       ];
     }
 
@@ -188,9 +190,22 @@ router.post('/', verifyToken, isAdmin, upload.single('image'), async (req, res) 
       });
     }
 
+    // Validate multilingual fields
+    if (!req.body.title_pt || !req.body.title_en || !req.body.content_pt || !req.body.content_en) {
+      return res.status(400).json({ 
+        message: 'Title and content are required in both Portuguese and English' 
+      });
+    }
+
     const announcementData = {
-      title: req.body.title,
-      content: req.body.content,
+      title: {
+        pt: req.body.title_pt,
+        en: req.body.title_en
+      },
+      content: {
+        pt: req.body.content_pt,
+        en: req.body.content_en
+      },
       category: normalizedCategory,
       imageUrl: imageUrl,
       isImportant: req.body.isImportant === 'true',
@@ -235,9 +250,20 @@ router.post('/batch', verifyToken, isAdmin, upload.array('images', 10), async (r
           throw new Error(`Invalid category for announcement ${index + 1}`);
         }
 
+        // Validate multilingual fields
+        if (!announcement.title_pt || !announcement.title_en || !announcement.content_pt || !announcement.content_en) {
+          throw new Error(`Multilingual fields are required for announcement ${index + 1}`);
+        }
+
         const announcementData = {
-          title: announcement.title,
-          content: announcement.content,
+          title: {
+            pt: announcement.title_pt,
+            en: announcement.title_en
+          },
+          content: {
+            pt: announcement.content_pt,
+            en: announcement.content_en
+          },
           category: normalizedCategory,
           imageUrl: imageUrl,
           isImportant: announcement.isImportant === true,
@@ -297,14 +323,37 @@ router.put('/:id', verifyToken, isAdmin, upload.single('image'), async (req, res
       }
     }
 
+    // Prepare update data with multilingual fields
     const updateData = {
-      title: req.body.title || announcement.title,
-      content: req.body.content || announcement.content,
       category: normalizedCategory,
       imageUrl: imageUrl,
       isImportant: req.body.isImportant === 'true',
       active: req.body.active === 'false' ? false : true
     };
+
+    // Handle multilingual title
+    if (req.body.title_pt && req.body.title_en) {
+      updateData.title = {
+        pt: req.body.title_pt,
+        en: req.body.title_en
+      };
+    } else if (req.body.title_pt || req.body.title_en) {
+      return res.status(400).json({ 
+        message: 'Both Portuguese and English titles are required' 
+      });
+    }
+
+    // Handle multilingual content
+    if (req.body.content_pt && req.body.content_en) {
+      updateData.content = {
+        pt: req.body.content_pt,
+        en: req.body.content_en
+      };
+    } else if (req.body.content_pt || req.body.content_en) {
+      return res.status(400).json({ 
+        message: 'Both Portuguese and English content are required' 
+      });
+    }
 
     const updatedAnnouncement = await Announcement.findByIdAndUpdate(
       req.params.id,

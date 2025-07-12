@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaBars, FaWhatsapp } from 'react-icons/fa';
+import { FaBars, FaWhatsapp, FaPhone, FaGlobe } from 'react-icons/fa';
 import './Navbar.css';
 import shopLogo from '../images/shop-logo.jpg';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const ScrollNavbar = () => {
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,42 +55,35 @@ const ScrollNavbar = () => {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" className="navbar-logo">
             <img src={shopLogo} alt="Shop Logo" className="nav-logo-img" />
-            <span>Cabinda Shop</span>
+            <span>{t('navbar.brand')}</span>
           </Link>
         </div>
 
         <ul className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <li className="nav-item">
             <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-              Home
+              {t('navbar.home')}
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/products" className={`nav-link ${location.pathname === '/products' ? 'active' : ''}`}>
-              Products
+              {t('navbar.products')}
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
-              About
+              {t('navbar.about')}
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/contact" className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}>
-              Contact
+              {t('navbar.contact')}
             </Link>
           </li>
         </ul>
 
         <div className="nav-icons">
-          <a 
-            href="https://wa.me/+244999999999" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="whatsapp-link"
-          >
-            <FaWhatsapp />
-          </a>
+          <LanguageSwitcher />
           <div className="mobile-menu-icon" onClick={toggleMobileMenu}>
             <FaBars />
           </div>

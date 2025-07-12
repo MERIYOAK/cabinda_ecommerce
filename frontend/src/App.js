@@ -7,7 +7,9 @@ import Footer from './components/Footer';
 import AppRoutes from './routes';
 import { ScrollToTop } from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import WhatsAppFloatingButton from './components/WhatsAppFloatingButton';
 import './App.css';
+import './components/WhatsAppFloatingButton.css';
 
 // Create a theme instance
 const theme = createTheme({
@@ -79,6 +81,7 @@ function App() {
       <CssBaseline />
       <Router>
         <ScrollToTop />
+        <WhatsAppFloatingButton />
         <div className="App">
           <ScrollNavbar />
           <main className="main-content">

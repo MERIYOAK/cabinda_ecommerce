@@ -29,8 +29,8 @@
   border-color: #007bff;
 }
 
-.newsletter-subscription input.error {
-  border-color: #dc3545;
+.newsletter-form input.error {
+  border-color: #25d366;
 }
 
 .newsletter-subscription button {

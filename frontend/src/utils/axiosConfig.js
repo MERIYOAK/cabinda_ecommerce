@@ -24,8 +24,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // If unauthorized, clear token and redirect to login
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // If unauthorized or forbidden, clear token and redirect to login
       localStorage.removeItem('adminToken');
       window.location.href = '/admin/login';
     }

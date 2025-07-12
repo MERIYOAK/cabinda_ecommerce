@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { FaEdit, FaTrash, FaFilter, FaPlus, FaTags } from 'react-icons/fa';
 import './OfferManager.css';
 import LoadingSpinner from './LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 function OfferManager() {
+  const { i18n, t } = useTranslation();
   const [offers, setOffers] = useState([]);
   const [filteredOffers, setFilteredOffers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -20,6 +22,42 @@ function OfferManager() {
     search: ''
   });
   const [loading, setLoading] = useState(true);
+
+  // Helper function to safely get product name
+  const getProductName = (product) => {
+    if (typeof product.name === 'string') {
+      // Old structure - name is a string
+      return product.name;
+    } else if (product.name && typeof product.name === 'object') {
+      // New structure - name is an object with pt/en
+      return product.name[i18n.language] || product.name.en || product.name.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get offer title
+  const getOfferTitle = (offer) => {
+    if (typeof offer.title === 'string') {
+      // Old structure - title is a string
+      return offer.title;
+    } else if (offer.title && typeof offer.title === 'object') {
+      // New structure - title is an object with pt/en
+      return offer.title[i18n.language] || offer.title.en || offer.title.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get offer description
+  const getOfferDescription = (offer) => {
+    if (typeof offer.description === 'string') {
+      // Old structure - description is a string
+      return offer.description;
+    } else if (offer.description && typeof offer.description === 'object') {
+      // New structure - description is an object with pt/en
+      return offer.description[i18n.language] || offer.description.en || offer.description.pt || '';
+    }
+    return '';
+  };
 
   const categories = ['seasonal', 'clearance', 'flash', 'bundle', 'holiday', 'other'];
 
@@ -44,49 +82,31 @@ function OfferManager() {
   }, [filters, offers]);
 
   const filterOffers = () => {
-    let result = [...offers];
+    let filtered = offers;
 
     if (filters.category !== 'all') {
-      result = result.filter(offer => offer.category === filters.category);
+      filtered = filtered.filter(offer => offer.category === filters.category);
     }
 
     if (filters.status !== 'all') {
-      const currentDate = new Date();
-      if (filters.status === 'active') {
-        result = result.filter(offer => 
-          offer.isActive && 
-          new Date(offer.startDate) <= currentDate && 
-          new Date(offer.endDate) >= currentDate
-        );
-      } else if (filters.status === 'scheduled') {
-        result = result.filter(offer => 
-          offer.isActive && 
-          new Date(offer.startDate) > currentDate
-        );
-      } else if (filters.status === 'expired') {
-        result = result.filter(offer => 
-          !offer.isActive || 
-          new Date(offer.endDate) < currentDate
-        );
-      }
+      const isActive = filters.status === 'active';
+      filtered = filtered.filter(offer => offer.isActive === isActive);
     }
 
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      result = result.filter(offer =>
-        offer.title.toLowerCase().includes(searchLower) ||
-        offer.description.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(offer => 
+        getOfferTitle(offer).toLowerCase().includes(searchLower) ||
+        getOfferDescription(offer).toLowerCase().includes(searchLower)
       );
     }
 
-    setFilteredOffers(result);
+    setFilteredOffers(filtered);
   };
 
   const fetchOffers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/offers', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
-      });
+      const response = await axiosInstance.get('/api/offers');
       setOffers(response.data);
     } catch (err) {
       setError('Failed to fetch offers');
@@ -95,21 +115,10 @@ function OfferManager() {
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/products');
-      setProducts(response.data.products || []);
+      const response = await axiosInstance.get('/api/products');
+      setProducts(response.data);
     } catch (err) {
       setError('Failed to fetch products');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -130,8 +139,8 @@ function OfferManager() {
       }
 
       if (isEditing && selectedOffer) {
-        await axios.patch(
-          `http://localhost:5000/api/offers/${selectedOffer._id}`,
+        await axiosInstance.put(
+          `/api/offers/${selectedOffer._id}`,
           formData,
           {
             headers: {
@@ -141,7 +150,7 @@ function OfferManager() {
           }
         );
       } else {
-        await axios.post('http://localhost:5000/api/offers', formData, {
+        await axiosInstance.post('http://localhost:5000/api/offers', formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
             'Content-Type': 'multipart/form-data'
@@ -160,8 +169,8 @@ function OfferManager() {
   const handleEdit = (offer) => {
     setSelectedOffer(offer);
     setOfferForm({
-      title: offer.title,
-      description: offer.description,
+      title: getOfferTitle(offer),
+      description: getOfferDescription(offer),
       category: offer.category,
       discountPercentage: offer.discountPercentage,
       products: offer.products.map(p => p._id),
@@ -176,9 +185,7 @@ function OfferManager() {
   const handleDelete = async (offerId) => {
     if (window.confirm('Are you sure you want to delete this offer?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/offers/${offerId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
-        });
+        await axiosInstance.delete(`/api/offers/${offerId}`);
         setSuccessMessage('Offer deleted successfully!');
         fetchOffers();
       } catch (err) {
@@ -206,7 +213,7 @@ function OfferManager() {
 
   const renderProductOption = (product) => (
     <option key={product._id} value={product._id}>
-      {product.name} - ${product.price.toFixed(2)}
+      {getProductName(product)} - ${product.price.toFixed(2)}
     </option>
   );
 
@@ -225,11 +232,11 @@ function OfferManager() {
             <div key={product._id} className="selected-product-card">
               <img 
                 src={product.images?.[0] || '/placeholder.jpg'} 
-                alt={product.name}
+                alt={getProductName(product)}
                 className="product-thumbnail"
               />
               <div className="product-info">
-                <h5>{product.name}</h5>
+                <h5>{getProductName(product)}</h5>
                 <div className="price-info">
                   <span className="original-price">${product.price.toFixed(2)}</span>
                   <span className="sale-price">
@@ -258,11 +265,18 @@ function OfferManager() {
 
   return (
     <div className="offer-manager">
-      {loading ? (
+      {loading && (
         <div className="loading-overlay">
-          <LoadingSpinner size="large" color="primary" />
+          <LoadingSpinner 
+            size="large" 
+            color="primary" 
+            variant="ring"
+            text={t('admin.saving')}
+            showText={true}
+          />
         </div>
-      ) : (
+      )}
+      {!loading && (
         <div className="offer-form">
           <h3>{isEditing ? 'Edit Offer' : 'Add New Offer'}</h3>
           {error && <div className="error-message">{error}</div>}
@@ -329,69 +343,66 @@ function OfferManager() {
               ></textarea>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="products">Select Products</label>
-              {loading ? (
-                <div className="loading-message">Loading products...</div>
-              ) : (
-                <>
-                  <select
-                    id="products"
-                    multiple
-                    value={offerForm.products}
-                    onChange={(e) => setOfferForm({
-                      ...offerForm,
-                      products: Array.from(e.target.selectedOptions, option => option.value)
-                    })}
-                    required
-                    className="form-control product-select"
-                  >
-                    {Array.isArray(products) && products.map(renderProductOption)}
-                  </select>
-                  <small className="help-text">
-                    Hold Ctrl (Windows) or Command (Mac) to select multiple products
-                  </small>
-                </>
-              )}
-            </div>
-
-            {renderSelectedProducts()}
-
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="startDate">Start Date</label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   id="startDate"
                   value={offerForm.startDate}
                   onChange={(e) => setOfferForm({ ...offerForm, startDate: e.target.value })}
                   required
                   className="form-control"
-                  min={new Date().toISOString().split('T')[0]}
                 />
               </div>
 
               <div className="form-group">
                 <label htmlFor="endDate">End Date</label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   id="endDate"
                   value={offerForm.endDate}
                   onChange={(e) => setOfferForm({ ...offerForm, endDate: e.target.value })}
                   required
                   className="form-control"
-                  min={offerForm.startDate || new Date().toISOString().split('T')[0]}
                 />
               </div>
             </div>
+
+            <div className="form-group">
+              <label htmlFor="products">Select Products</label>
+              <select
+                id="products"
+                multiple
+                value={offerForm.products}
+                onChange={(e) => {
+                  const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                  setOfferForm({ ...offerForm, products: selectedOptions });
+                }}
+                className="form-control"
+                required
+              >
+                {products.map(renderProductOption)}
+              </select>
+            </div>
+
+            {renderSelectedProducts()}
 
             <div className="form-group">
               <label htmlFor="bannerImage">Banner Image</label>
               <input
                 type="file"
                 id="bannerImage"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setSelectedImage(file);
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => setImagePreview(e.target.result);
+                    reader.readAsDataURL(file);
+                  }
+                }}
                 accept="image/*"
-                onChange={handleImageChange}
                 className="form-control"
                 required={!isEditing}
               />
@@ -402,8 +413,8 @@ function OfferManager() {
               )}
             </div>
 
-            <div className="form-group checkbox-group">
-              <label>
+            <div className="form-group">
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={offerForm.isActive}
@@ -415,128 +426,111 @@ function OfferManager() {
 
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
-                <FaPlus /> {isEditing ? 'Update Offer' : 'Add Offer'}
+                {isEditing ? 'Update Offer' : 'Create Offer'}
               </button>
               {isEditing && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="btn btn-secondary"
-                >
-                  Cancel Edit
+                <button type="button" onClick={resetForm} className="btn btn-secondary">
+                  Cancel
                 </button>
               )}
             </div>
           </form>
-        </div>
-      )}
 
-      <div className="offers-list">
-        <div className="offers-header">
-          <h3>Current Offers</h3>
-          <div className="filters">
-            <div className="filter-group">
-              <label htmlFor="categoryFilter">Category:</label>
-              <select
-                id="categoryFilter"
-                value={filters.category}
-                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="filter-control"
-              >
-                <option value="all">All Categories</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
+          <div className="offers-list">
+            <div className="list-header">
+              <h3>Current Offers</h3>
+              <div className="filters">
+                <select
+                  value={filters.category}
+                  onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                  className="filter-select"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  className="filter-select"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+
+                <input
+                  type="text"
+                  placeholder="Search offers..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="search-input"
+                />
+              </div>
             </div>
 
-            <div className="filter-group">
-              <label htmlFor="statusFilter">Status:</label>
-              <select
-                id="statusFilter"
-                value={filters.status}
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="filter-control"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="expired">Expired</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="searchFilter">Search:</label>
-              <input
-                type="text"
-                id="searchFilter"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                placeholder="Search offers..."
-                className="filter-control"
-              />
+            <div className="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Banner</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Discount</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOffers.map(offer => (
+                    <tr key={offer._id}>
+                      <td>
+                        <div className="offer-banner-small">
+                          <img src={offer.bannerImage || '/placeholder.jpg'} alt={getOfferTitle(offer)} />
+                        </div>
+                      </td>
+                      <td>{getOfferTitle(offer)}</td>
+                      <td>{offer.category.charAt(0).toUpperCase() + offer.category.slice(1)}</td>
+                      <td>{offer.discountPercentage}%</td>
+                      <td>
+                        {new Date(offer.startDate).toLocaleDateString()} -
+                        <br />
+                        {new Date(offer.endDate).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <span className={`status ${offer.isActive ? 'active' : 'inactive'}`}>
+                          {offer.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleEdit(offer)}
+                          className="btn btn-icon"
+                          title="Edit"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(offer._id)}
+                          className="btn btn-icon delete"
+                          title="Delete"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-
-        <div className="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Banner</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Discount</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOffers.map(offer => (
-                <tr key={offer._id}>
-                  <td>
-                    <div className="offer-banner-small">
-                      <img src={offer.bannerImage || '/placeholder.jpg'} alt={offer.title} />
-                    </div>
-                  </td>
-                  <td>{offer.title}</td>
-                  <td>{offer.category.charAt(0).toUpperCase() + offer.category.slice(1)}</td>
-                  <td>{offer.discountPercentage}%</td>
-                  <td>
-                    {new Date(offer.startDate).toLocaleDateString()} -
-                    <br />
-                    {new Date(offer.endDate).toLocaleDateString()}
-                  </td>
-                  <td>
-                    <span className={`status ${offer.isActive ? 'active' : 'inactive'}`}>
-                      {offer.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => handleEdit(offer)}
-                      className="btn btn-icon"
-                      title="Edit"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(offer._id)}
-                      className="btn btn-icon delete"
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

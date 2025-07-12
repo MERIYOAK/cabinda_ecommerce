@@ -2,13 +2,26 @@ const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema({
   title: {
-    type: String,
-    required: true,
-    trim: true
+    pt: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    en: {
+      type: String,
+      required: true,
+      trim: true
+    }
   },
   content: {
-    type: String,
-    required: true
+    pt: {
+      type: String,
+      required: true
+    },
+    en: {
+      type: String,
+      required: true
+    }
   },
   imageUrl: {
     type: String,

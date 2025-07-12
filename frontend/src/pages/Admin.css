@@ -260,13 +260,13 @@
 }
 
 .delete-button {
-  background-color: #fff1f1;
-  color: #dc3545;
-  border: 1px solid #dc3545;
+  background-color: #f0fff4;
+  color: #25d366;
+  border: 1px solid #25d366;
 }
 
 .delete-button:hover {
-  background-color: #dc3545;
+  background-color: #25d366;
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -400,13 +400,13 @@
 }
 
 .error-message {
-  background-color: #fee;
-  color: #dc3545;
+  background-color: #f0fff4;
+  color: #25d366;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   text-align: center;
-  border: 1px solid #fcc;
+  border: 1px solid #c8f5c8;
 }
 
 .success-message {
@@ -431,8 +431,8 @@
 }
 
 .status.inactive {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #f0fff4;
+  color: #25d366;
 }
 
 .setup-info {

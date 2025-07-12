@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
 import './Contact.css';
+import { useTranslation } from 'react-i18next';
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +30,7 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setStatus({ type: 'info', message: 'Sending message...' });
+    setStatus({ type: 'info', message: t('contact.sending') });
 
     try {
       // Simulate API call
@@ -37,13 +39,13 @@ const Contact = () => {
       console.log('Form submitted:', formData);
       setStatus({
         type: 'success',
-        message: 'Message sent successfully! We will get back to you soon.'
+        message: t('contact.success')
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       setStatus({
         type: 'error',
-        message: 'Failed to send message. Please try again.'
+        message: t('contact.error')
       });
     } finally {
       setIsSubmitting(false);
@@ -54,23 +56,23 @@ const Contact = () => {
     <div className="contact-page">
       <section className="contact-hero">
         <div className="hero-content">
-          <h1>Get in Touch</h1>
-          <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+          <h1>{t('contact.heroTitle')}</h1>
+          <p>{t('contact.heroDesc')}</p>
         </div>
       </section>
 
       <div className="container">
         <div className="contact-content">
           <div className="contact-info" data-aos="fade-right">
-            <h2>Contact Information</h2>
+            <h2>{t('contact.infoTitle')}</h2>
             <div className="info-items">
               <div className="info-item" data-aos="fade-up" data-aos-delay="100">
                 <div className="icon-wrapper">
                   <FaMapMarkerAlt />
                 </div>
                 <div className="info-details">
-                  <h3>Visit Us</h3>
-                  <p>123 Main Street<br />Cabinda, Angola</p>
+                  <h3>{t('contact.visitUs')}</h3>
+                  <p>123 Main Street<br />AFRI-CABINDA, Angola</p>
                 </div>
               </div>
 
@@ -82,7 +84,7 @@ const Contact = () => {
                   <h3>WhatsApp</h3>
                   <p>+123 456 789</p>
                   <a href="https://wa.me/123456789" className="contact-link" target="_blank" rel="noopener noreferrer">
-                    Message us on WhatsApp
+                    {t('contact.messageWhatsapp')}
                   </a>
                 </div>
               </div>
@@ -92,10 +94,10 @@ const Contact = () => {
                   <FaEnvelope />
                 </div>
                 <div className="info-details">
-                  <h3>Email Us</h3>
+                  <h3>{t('contact.emailUs')}</h3>
                   <p>info@retailshop.com</p>
                   <a href="mailto:info@retailshop.com" className="contact-link">
-                    Send us an email
+                    {t('contact.sendEmail')}
                   </a>
                 </div>
               </div>
@@ -105,8 +107,8 @@ const Contact = () => {
                   <FaClock />
                 </div>
                 <div className="info-details">
-                  <h3>Opening Hours</h3>
-                  <p>Monday - Saturday: 9:00 AM - 8:00 PM<br />Sunday: 10:00 AM - 6:00 PM</p>
+                  <h3>{t('contact.openingHours')}</h3>
+                  <p>{t('contact.hours')}</p>
                 </div>
               </div>
             </div>
@@ -114,11 +116,11 @@ const Contact = () => {
 
           <div className="contact-form" data-aos="fade-left">
             <div className="form-wrapper">
-              <h2>Send us a Message</h2>
+              <h2>{t('contact.formTitle')}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="name">Name</label>
+                    <label htmlFor="name">{t('contact.name')}</label>
                     <input
                       type="text"
                       id="name"
@@ -127,12 +129,12 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       className="form-control"
-                      placeholder="Your name"
+                      placeholder={t('contact.namePlaceholder')}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="email">{t('contact.email')}</label>
                     <input
                       type="email"
                       id="email"
@@ -141,13 +143,13 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       className="form-control"
-                      placeholder="Your email"
+                      placeholder={t('contact.emailPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="subject">Subject</label>
+                  <label htmlFor="subject">{t('contact.subject')}</label>
                   <input
                     type="text"
                     id="subject"
@@ -156,12 +158,12 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     className="form-control"
-                    placeholder="Message subject"
+                    placeholder={t('contact.subjectPlaceholder')}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="message">Message</label>
+                  <label htmlFor="message">{t('contact.message')}</label>
                   <textarea
                     id="message"
                     name="message"
@@ -170,7 +172,7 @@ const Contact = () => {
                     required
                     className="form-control"
                     rows="5"
-                    placeholder="Your message"
+                    placeholder={t('contact.messagePlaceholder')}
                   ></textarea>
                 </div>
 
@@ -180,7 +182,7 @@ const Contact = () => {
                   disabled={isSubmitting}
                 >
                   <FaPaperPlane className="button-icon" />
-                  <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
+                  <span>{isSubmitting ? t('contact.sendingBtn') : t('contact.sendBtn')}</span>
                 </button>
 
                 {status.message && (

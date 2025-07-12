@@ -1,15 +1,21 @@
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-  name: {
+const multilingualFieldSchema = {
+  en: {
     type: String,
     required: true,
     trim: true
   },
-  description: {
+  pt: {
     type: String,
-    required: true
-  },
+    required: true,
+    trim: true
+  }
+};
+
+const productSchema = new mongoose.Schema({
+  name: multilingualFieldSchema,
+  description: multilingualFieldSchema,
   price: {
     type: Number,
     required: true,
@@ -18,49 +24,27 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Foodstuffs', 'Drinks', 'Fashion', 'Home & Living']
+    enum: [
+      'Foodstuffs',
+      'Household',
+      'Beverages',
+      'Electronics',
+      'Construction Materials',
+      'Plastics',
+      'Cosmetics',
+      'Powder Detergent',
+      'Liquid Detergent',
+      'Juices',
+      'Dental Care',
+      'Beef'
+    ]
   },
   imageUrl: {
     type: String,
     required: true
-  },
-  stock: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  sales: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  isOnSale: {
-    type: Boolean,
-    default: false
-  },
-  salePrice: {
-    type: Number,
-    min: 0
-  },
-  rating: {
-    type: Number,
-    min: 0,
-    max: 5,
-    default: 0
-  },
-  numReviews: {
-    type: Number,
-    default: 0
   }
 }, {
   timestamps: true
 });
-
-// Index for faster querying
-productSchema.index({ category: 1 });
-productSchema.index({ sales: -1 });
-productSchema.index({ createdAt: -1 });
-productSchema.index({ price: 1 });
-productSchema.index({ isOnSale: 1 });
 
 module.exports = mongoose.model('Product', productSchema); 

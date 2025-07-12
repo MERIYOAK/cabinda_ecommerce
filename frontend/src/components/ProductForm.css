@@ -109,12 +109,12 @@
 }
 
 .error-message {
-  color: #dc3545;
+  color: #25d366;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
 
 .required {
-  color: #dc3545;
+  color: #25d366;
   margin-left: 4px;
 } 

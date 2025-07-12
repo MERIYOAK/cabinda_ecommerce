@@ -1,15 +1,21 @@
 const mongoose = require('mongoose');
 
-const offerSchema = new mongoose.Schema({
-  title: {
+const multilingualFieldSchema = {
+  en: {
     type: String,
     required: true,
     trim: true
   },
-  description: {
+  pt: {
     type: String,
-    required: true
-  },
+    required: true,
+    trim: true
+  }
+};
+
+const offerSchema = new mongoose.Schema({
+  title: multilingualFieldSchema,
+  description: multilingualFieldSchema,
   category: {
     type: String,
     required: true,

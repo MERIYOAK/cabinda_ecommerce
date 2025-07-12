@@ -30,8 +30,14 @@ const createWeeklyOffer = async () => {
     const nextWeek = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     const weeklyOffer = {
-      title: 'Weekly Coffee Special',
-      description: 'Enjoy our premium coffee selection at an amazing discount! Limited time offer.',
+      title: {
+        pt: 'Especial Semanal de Café',
+        en: 'Weekly Coffee Special'
+      },
+      description: {
+        pt: 'Aproveite a nossa seleção premium de café com um desconto incrível! Oferta por tempo limitado.',
+        en: 'Enjoy our premium coffee selection at an amazing discount! Limited time offer.'
+      },
       category: 'seasonal',
       discountPercentage: 20,
       products: coffeeProducts.map(p => p._id),
@@ -42,7 +48,7 @@ const createWeeklyOffer = async () => {
     };
 
     // Delete any existing weekly coffee special offers
-    await Offer.deleteMany({ title: 'Weekly Coffee Special' });
+    await Offer.deleteMany({ 'title.en': 'Weekly Coffee Special' });
     
     const offer = new Offer(weeklyOffer);
     const savedOffer = await offer.save();

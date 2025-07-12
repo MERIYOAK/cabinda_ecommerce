@@ -1,14 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { FaWhatsapp } from 'react-icons/fa';
 import './WeeklyOffers.css';
 import API_URL from '../config/api';
 import LoadingSpinner from './LoadingSpinner';
+import { useTranslation } from 'react-i18next';
 
 function WeeklyOffers() {
+  const { t, i18n } = useTranslation();
   const [offers, setOffers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Helper function to safely get product name
+  const getProductName = (product) => {
+    if (typeof product.name === 'string') {
+      // Old structure - name is a string
+      return product.name;
+    } else if (product.name && typeof product.name === 'object') {
+      // New structure - name is an object with pt/en
+      return product.name[i18n.language] || product.name.en || product.name.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get offer title
+  const getOfferTitle = (offer) => {
+    if (typeof offer.title === 'string') {
+      // Old structure - title is a string
+      return offer.title;
+    } else if (offer.title && typeof offer.title === 'object') {
+      // New structure - title is an object with pt/en
+      return offer.title[i18n.language] || offer.title.en || offer.title.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get offer description
+  const getOfferDescription = (offer) => {
+    if (typeof offer.description === 'string') {
+      // Old structure - description is a string
+      return offer.description;
+    } else if (offer.description && typeof offer.description === 'object') {
+      // New structure - description is an object with pt/en
+      return offer.description[i18n.language] || offer.description.en || offer.description.pt || '';
+    }
+    return '';
+  };
 
   useEffect(() => {
     fetchActiveOffers();
@@ -16,71 +55,62 @@ function WeeklyOffers() {
 
   const fetchActiveOffers = async () => {
     try {
-      console.log('Fetching active offers from:', `${API_URL}/api/offers/public/active`);
+      setLoading(true);
       const response = await axios.get(`${API_URL}/api/offers/public/active`);
-      console.log('Active offers response:', response.data);
-      
-      // Validate offers data
-      if (!Array.isArray(response.data)) {
-        console.error('Invalid offers data:', response.data);
-        throw new Error('Invalid offers data received');
-      }
-      
-      // Filter out offers with invalid product data
-      const validOffers = response.data.filter(offer => {
-        const isValid = offer && 
-                       typeof offer === 'object' && 
-                       Array.isArray(offer.products) &&
-                       offer.products.every(product => 
-                         product && typeof product === 'object' && product._id
-                       );
-        if (!isValid) {
-          console.warn('Filtered out invalid offer:', offer);
-        }
-        return isValid;
-      });
-
-      setOffers(validOffers);
-      setError('');
-    } catch (err) {
-      console.error('Error fetching offers:', err);
-      setError(err.response?.data?.message || 'Failed to fetch offers');
+      console.log('Fetched active offers:', response.data);
+      setOffers(response.data);
+    } catch (error) {
+      console.error('Error fetching active offers:', error);
+      setError('Failed to load offers');
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to safely format price
   const formatPrice = (price) => {
-    if (typeof price !== 'number' || isNaN(price)) {
-      console.warn('Invalid price value:', price);
-      return '0.00';
-    }
-    return price.toFixed(2);
+    return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
 
-  // Helper function to calculate sale price
   const calculateSalePrice = (originalPrice, discountPercentage) => {
-    if (typeof originalPrice !== 'number' || typeof discountPercentage !== 'number' || 
-        isNaN(originalPrice) || isNaN(discountPercentage)) {
-      console.warn('Invalid price or discount:', { originalPrice, discountPercentage });
+    if (typeof originalPrice !== 'number' || typeof discountPercentage !== 'number') {
       return '0.00';
     }
-    return (originalPrice * (1 - discountPercentage / 100)).toFixed(2);
+    const discount = originalPrice * (discountPercentage / 100);
+    return (originalPrice - discount).toFixed(2);
+  };
+
+  const WHATSAPP_NUMBER = '244922706107'; // Update to your business number
+  const getWhatsAppMessage = (offer, products) => {
+    let message = `${t('weeklyOffers.whatsappGreeting')} ${getOfferTitle(offer)}\n`;
+    message += `${t('weeklyOffers.whatsappDetails')}: ${getOfferDescription(offer)}\n`;
+    if (products && products.length > 0) {
+      message += `${t('weeklyOffers.whatsappProducts')}:\n`;
+      products.forEach((product, idx) => {
+        message += `- ${getProductName(product)}\n`;
+      });
+    }
+    return message;
   };
 
   return (
     <section className="weekly-offers">
       <div className="container">
-        <h2>Weekly Special Offerings</h2>
-        {loading ? (
+        <h2>{t('weeklyOffers.title')}</h2>
+        {loading && (
           <div className="loading-overlay">
-            <LoadingSpinner size="large" color="primary" />
+            <LoadingSpinner 
+              size="large" 
+              color="primary" 
+              variant="hexagon"
+              text={t('weeklyOffers.loading')}
+              showText={true}
+            />
           </div>
-        ) : error ? (
+        )}
+        {error ? (
           <div className="error-message">{error}</div>
         ) : offers.length === 0 ? (
-          <div className="no-offers">No special offers available at the moment.</div>
+          <div className="no-offers">{t('weeklyOffers.noOffers')}</div>
         ) : (
           <div className="offers-grid">
             {offers.map(offer => {
@@ -99,7 +129,7 @@ function WeeklyOffers() {
                   <div className="offer-banner">
                     <img 
                       src={offer.bannerImage} 
-                      alt={offer.title || 'Special Offer'}
+                      alt={getOfferTitle(offer) || t('weeklyOffers.specialOffer')}
                       onError={(e) => {
                         console.error('Failed to load offer image:', offer.bannerImage);
                         e.target.src = 'https://via.placeholder.com/800x400?text=Offer+Image';
@@ -107,16 +137,17 @@ function WeeklyOffers() {
                     />
                     <div className="discount-badge">
                       {typeof offer.discountPercentage === 'number' 
-                        ? `${offer.discountPercentage}% OFF` 
-                        : 'Special Offer'}
+                        ? `${offer.discountPercentage}% ${t('weeklyOffers.off')}` 
+                        : t('weeklyOffers.specialOffer')}
                     </div>
                   </div>
+                  
                   <div className="offer-content">
-                    <h3>{offer.title || 'Special Offer'}</h3>
-                    <p>{offer.description || 'Check out our special offer!'}</p>
+                    <h3>{getOfferTitle(offer) || t('weeklyOffers.specialOffer')}</h3>
+                    <p>{getOfferDescription(offer) || t('weeklyOffers.checkOutOffer')}</p>
                     {validProducts.length > 0 && (
                       <div className="offer-products">
-                        <h4>Featured Products:</h4>
+                        <h4>{t('weeklyOffers.featuredProducts')}:</h4>
                         <div className="product-grid">
                           {validProducts.map(product => (
                             <Link 
@@ -127,14 +158,14 @@ function WeeklyOffers() {
                               <div className="product-image">
                                 <img 
                                   src={product.imageUrl || product.images?.[0]} 
-                                  alt={product.name || 'Product Image'}
+                                  alt={getProductName(product) || t('weeklyOffers.productImage')}
                                   onError={(e) => {
                                     e.target.src = 'https://via.placeholder.com/200x200?text=Product+Image';
                                   }}
                                 />
                               </div>
                               <div className="product-info">
-                                <h5>{product.name || 'Unnamed Product'}</h5>
+                                <h5>{getProductName(product) || t('weeklyOffers.unnamedProduct')}</h5>
                                 <div className="product-price">
                                   <span className="original-price">
                                     ${formatPrice(product.price)}
@@ -150,9 +181,32 @@ function WeeklyOffers() {
                       </div>
                     )}
                     <div className="offer-dates">
-                      <p>Valid from: {offer.startDate ? new Date(offer.startDate).toLocaleDateString() : 'N/A'}</p>
-                      <p>Until: {offer.endDate ? new Date(offer.endDate).toLocaleDateString() : 'N/A'}</p>
+                      <p>{t('weeklyOffers.validFrom')}: {offer.startDate ? new Date(offer.startDate).toLocaleDateString() : t('weeklyOffers.notAvailable')}</p>
+                      <p>{t('weeklyOffers.until')}: {offer.endDate ? new Date(offer.endDate).toLocaleDateString() : t('weeklyOffers.notAvailable')}</p>
                     </div>
+                    <a
+                      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(getWhatsAppMessage(offer, validProducts))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="whatsapp-offer-btn"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5em',
+                        marginTop: '18px',
+                        background: 'linear-gradient(90deg, #25d366 60%, #128c7e 100%)',
+                        color: '#fff',
+                        padding: '0.7em 1.5em',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        fontSize: '1.05rem',
+                        textDecoration: 'none',
+                        boxShadow: '0 2px 8px rgba(37, 211, 102, 0.10)',
+                        transition: 'background 0.3s, box-shadow 0.3s, transform 0.2s',
+                      }}
+                    >
+                      <FaWhatsapp style={{ fontSize: '1.3em' }} /> {t('weeklyOffers.buyViaWhatsapp')}
+                    </a>
                   </div>
                 </div>
               );

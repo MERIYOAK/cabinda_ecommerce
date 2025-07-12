@@ -187,10 +187,29 @@ router.delete('/subscribers/:id', verifyToken, isAdmin, async (req, res) => {
 // Send newsletter to all subscribers
 router.post('/send', verifyToken, isAdmin, async (req, res) => {
   try {
-    const { subject, message } = req.body;
+    const { subject, message, subject_pt, subject_en, message_pt, message_en } = req.body;
 
-    if (!subject || !message) {
-      return res.status(400).json({ message: 'Subject and message are required' });
+    // Support both old format (single language) and new format (multilingual)
+    let finalSubject, finalMessage;
+    
+    if (subject_pt && subject_en && message_pt && message_en) {
+      // New multilingual format
+      finalSubject = {
+        pt: subject_pt,
+        en: subject_en
+      };
+      finalMessage = {
+        pt: message_pt,
+        en: message_en
+      };
+    } else if (subject && message) {
+      // Old single language format
+      finalSubject = subject;
+      finalMessage = message;
+    } else {
+      return res.status(400).json({ 
+        message: 'Subject and message are required. For multilingual support, provide subject_pt, subject_en, message_pt, and message_en.' 
+      });
     }
 
     const subscribers = await Newsletter.find({ isActive: true });
@@ -200,29 +219,61 @@ router.post('/send', verifyToken, isAdmin, async (req, res) => {
     }
 
     // Create HTML template for the newsletter
-    const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
-          <h2 style="color: white; margin: 0; text-align: center;">${subject}</h2>
-        </div>
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
-          <div style="color: #666; line-height: 1.6;">
-            ${message}
+    let htmlContent;
+    
+    if (typeof finalSubject === 'object' && typeof finalMessage === 'object') {
+      // Multilingual newsletter
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">${finalSubject.pt}</h2>
           </div>
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-          <p style="color: #999; font-size: 12px;">
-            You received this email because you're subscribed to our newsletter. 
-            If you wish to unsubscribe, please visit our website.
-          </p>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
+            <div style="color: #666; line-height: 1.6;">
+              ${finalMessage.pt}
+            </div>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-top: 20px;">
+              <h3 style="color: #1976d2; margin-top: 0;">English Version</h3>
+              <h4 style="color: #333; margin-bottom: 10px;">${finalSubject.en}</h4>
+              <div style="color: #666; line-height: 1.6;">
+                ${finalMessage.en}
+              </div>
+            </div>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+            <p style="color: #999; font-size: 12px;">
+              You received this email because you're subscribed to our newsletter. 
+              If you wish to unsubscribe, please visit our website.
+            </p>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      // Single language newsletter
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">${finalSubject}</h2>
+          </div>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
+            <div style="color: #666; line-height: 1.6;">
+              ${finalMessage}
+            </div>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
+            <p style="color: #999; font-size: 12px;">
+              You received this email because you're subscribed to our newsletter. 
+              If you wish to unsubscribe, please visit our website.
+            </p>
+          </div>
+        </div>
+      `;
+    }
 
     // Send email to all subscribers
     const emailPromises = subscribers.map(subscriber => 
       sendEmail({
         to: subscriber.email,
-        subject: subject,
+        subject: typeof finalSubject === 'object' ? finalSubject.pt : finalSubject,
         html: htmlContent
       })
     );

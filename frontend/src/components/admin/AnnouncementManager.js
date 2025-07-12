@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaEdit, FaTrash, FaCheck, FaTimes } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import './AnnouncementManager.css';
 
 const VALID_CATEGORIES = ['Promotion', 'New Arrival', 'Stock Update', 'Event', 'News'];
@@ -13,12 +14,15 @@ const AnnouncementManager = ({
   onBatchDelete,
   loading 
 }) => {
+  const { t } = useTranslation();
   const announcementsArray = Array.isArray(announcements) ? announcements : [];
 
   const [selectedAnnouncements, setSelectedAnnouncements] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
+    title_pt: '',
+    title_en: '',
+    content_pt: '',
+    content_en: '',
     category: 'Promotion',
     isImportant: false,
     image: null,
@@ -43,8 +47,10 @@ const AnnouncementManager = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
-    data.append('title', formData.title);
-    data.append('content', formData.content);
+    data.append('title_pt', formData.title_pt);
+    data.append('title_en', formData.title_en);
+    data.append('content_pt', formData.content_pt);
+    data.append('content_en', formData.content_en);
     data.append('category', formData.category);
     data.append('isImportant', formData.isImportant);
     if (formData.image) {
@@ -63,8 +69,10 @@ const AnnouncementManager = ({
   const handleEdit = (announcement) => {
     setEditingId(announcement._id);
     setFormData({
-      title: announcement.title,
-      content: announcement.content,
+      title_pt: announcement.title?.pt || (typeof announcement.title === 'string' ? announcement.title : ''),
+      title_en: announcement.title?.en || (typeof announcement.title === 'string' ? announcement.title : ''),
+      content_pt: announcement.content?.pt || (typeof announcement.content === 'string' ? announcement.content : ''),
+      content_en: announcement.content?.en || (typeof announcement.content === 'string' ? announcement.content : ''),
       category: announcement.category,
       isImportant: announcement.isImportant,
       image: null,
@@ -74,8 +82,10 @@ const AnnouncementManager = ({
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      content: '',
+      title_pt: '',
+      title_en: '',
+      content_pt: '',
+      content_en: '',
       category: 'Promotion',
       isImportant: false,
       image: null,
@@ -104,9 +114,31 @@ const AnnouncementManager = ({
     }
   };
 
+  // Helper function to safely get announcement title
+  const getAnnouncementTitle = (announcement) => {
+    if (typeof announcement.title === 'string') {
+      return announcement.title;
+    } else if (announcement.title && typeof announcement.title === 'object') {
+      return announcement.title.en || announcement.title.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get announcement content
+  const getAnnouncementContent = (announcement) => {
+    if (typeof announcement.content === 'string') {
+      return announcement.content;
+    } else if (announcement.content && typeof announcement.content === 'object') {
+      return announcement.content.en || announcement.content.pt || '';
+    }
+    return '';
+  };
+
   const filteredAnnouncements = announcementsArray.filter(announcement => {
-    const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         announcement.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const title = getAnnouncementTitle(announcement);
+    const content = getAnnouncementContent(announcement);
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !filterCategory || announcement.category === filterCategory;
     const matchesStatus = showInactiveOnly ? !announcement.active : true;
     return matchesSearch && matchesCategory && matchesStatus;
@@ -116,35 +148,62 @@ const AnnouncementManager = ({
     <div className="announcement-manager">
       <div className="announcement-form-container">
         <form onSubmit={handleSubmit} className="announcement-form">
-          <h3>{editingId ? 'Edit Announcement' : 'Create New Announcement'}</h3>
+          <h3>{editingId ? t('announcementForm.editTitle') : t('announcementForm.createTitle')}</h3>
           
-          <div className="form-group">
-            <label>Title</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              required
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>{t('announcementForm.titlePT')}</label>
+              <input
+                type="text"
+                value={formData.title_pt}
+                onChange={(e) => setFormData({...formData, title_pt: e.target.value})}
+                required
+                placeholder={t('announcementForm.titlePTHint')}
+              />
+            </div>
+            <div className="form-group">
+              <label>{t('announcementForm.titleEN')}</label>
+              <input
+                type="text"
+                value={formData.title_en}
+                onChange={(e) => setFormData({...formData, title_en: e.target.value})}
+                required
+                placeholder={t('announcementForm.titleENHint')}
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>{t('announcementForm.contentPT')}</label>
+              <textarea
+                value={formData.content_pt}
+                onChange={(e) => setFormData({...formData, content_pt: e.target.value})}
+                required
+                placeholder={t('announcementForm.contentPTHint')}
+                rows="4"
+              />
+            </div>
+            <div className="form-group">
+              <label>{t('announcementForm.contentEN')}</label>
+              <textarea
+                value={formData.content_en}
+                onChange={(e) => setFormData({...formData, content_en: e.target.value})}
+                required
+                placeholder={t('announcementForm.contentENHint')}
+                rows="4"
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label>Content</label>
-            <textarea
-              value={formData.content}
-              onChange={(e) => setFormData({...formData, content: e.target.value})}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Category</label>
+            <label>{t('announcementForm.category')}</label>
             <select
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
             >
               {VALID_CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{t(`announcementForm.categories.${cat.toLowerCase().replace(' ', '')}`)}</option>
               ))}
             </select>
           </div>
@@ -156,12 +215,12 @@ const AnnouncementManager = ({
                 checked={formData.isImportant}
                 onChange={(e) => setFormData({...formData, isImportant: e.target.checked})}
               />
-              Mark as Important
+              {t('announcementForm.markAsImportant')}
             </label>
           </div>
 
           <div className="form-group">
-            <label>Image</label>
+            <label>{t('announcementForm.image')}</label>
             <input
               type="file"
               onChange={handleImageChange}
@@ -171,7 +230,7 @@ const AnnouncementManager = ({
             {formData.imagePreview && (
               <img 
                 src={formData.imagePreview} 
-                alt="Preview" 
+                alt={t('announcementForm.imagePreview')} 
                 className="image-preview"
               />
             )}
@@ -179,11 +238,11 @@ const AnnouncementManager = ({
 
           <div className="form-actions">
             <button type="submit" disabled={loading}>
-              {editingId ? 'Update' : 'Create'} Announcement
+              {editingId ? t('announcementForm.update') : t('announcementForm.create')} {t('announcementForm.announcement')}
             </button>
             {editingId && (
               <button type="button" onClick={resetForm}>
-                Cancel
+                {t('announcementForm.cancel')}
               </button>
             )}
           </div>
@@ -195,7 +254,7 @@ const AnnouncementManager = ({
           <div className="search-filter">
             <input
               type="text"
-              placeholder="Search announcements..."
+              placeholder={t('announcementList.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -203,9 +262,9 @@ const AnnouncementManager = ({
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
-              <option value="">All Categories</option>
+              <option value="">{t('announcementList.allCategories')}</option>
               {VALID_CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{t(`announcementForm.categories.${cat.toLowerCase().replace(' ', '')}`)}</option>
               ))}
             </select>
             <label>
@@ -214,7 +273,7 @@ const AnnouncementManager = ({
                 checked={showInactiveOnly}
                 onChange={(e) => setShowInactiveOnly(e.target.checked)}
               />
-              Show Inactive Only
+              {t('announcementList.showInactiveOnly')}
             </label>
           </div>
 
@@ -224,24 +283,24 @@ const AnnouncementManager = ({
                 onClick={() => onBatchUpdateStatus(selectedAnnouncements, true)}
                 className="activate-btn"
               >
-                Activate Selected
+                {t('announcementList.activateSelected')}
               </button>
               <button 
                 onClick={() => onBatchUpdateStatus(selectedAnnouncements, false)}
                 className="deactivate-btn"
               >
-                Deactivate Selected
+                {t('announcementList.deactivateSelected')}
               </button>
               <button 
                 onClick={() => {
-                  if (window.confirm('Delete selected announcements?')) {
+                  if (window.confirm(t('announcementList.confirmDeleteSelected'))) {
                     onBatchDelete(selectedAnnouncements);
                     setSelectedAnnouncements([]);
                   }
                 }}
                 className="delete-btn"
               >
-                Delete Selected
+                {t('announcementList.deleteSelected')}
               </button>
             </div>
           )}
@@ -258,12 +317,12 @@ const AnnouncementManager = ({
                     checked={selectedAnnouncements.length === filteredAnnouncements.length}
                   />
                 </th>
-                <th>Image</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Important</th>
-                <th>Actions</th>
+                <th>{t('announcementList.image')}</th>
+                <th>{t('announcementList.title')}</th>
+                <th>{t('announcementList.category')}</th>
+                <th>{t('announcementList.status')}</th>
+                <th>{t('announcementList.important')}</th>
+                <th>{t('announcementList.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -279,11 +338,11 @@ const AnnouncementManager = ({
                   <td>
                     <img 
                       src={announcement.imageUrl} 
-                      alt={announcement.title} 
+                      alt={getAnnouncementTitle(announcement)} 
                       className="thumbnail"
                     />
                   </td>
-                  <td>{announcement.title}</td>
+                  <td>{getAnnouncementTitle(announcement)}</td>
                   <td>{announcement.category}</td>
                   <td>
                     {announcement.active ? (
@@ -300,22 +359,24 @@ const AnnouncementManager = ({
                     )}
                   </td>
                   <td>
-                    <button
-                      onClick={() => handleEdit(announcement)}
-                      className="edit-btn"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Delete this announcement?')) {
-                          onDeleteAnnouncement(announcement._id);
-                        }
-                      }}
-                      className="delete-btn"
-                    >
-                      <FaTrash />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => handleEdit(announcement)}
+                        className="edit-btn"
+                      >
+                        <FaEdit style={{ marginRight: '0.4em' }} /> {t('announcementList.edit')}
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(t('announcementList.confirmDelete'))) {
+                            onDeleteAnnouncement(announcement._id);
+                          }
+                        }}
+                        className="delete-btn"
+                      >
+                        <FaTrash style={{ marginRight: '0.4em' }} /> {t('announcementList.delete')}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

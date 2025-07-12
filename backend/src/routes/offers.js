@@ -127,19 +127,21 @@ router.post('/', verifyToken, isAdmin, upload.single('bannerImage'), async (req,
     console.log('Products in request:', req.body.products);
     console.log('Products[] in request:', req.body['products[]']);
 
-    // Validate required fields
-    if (!req.body.title || !req.body.description || !req.body.discountPercentage || 
-        !req.body.startDate || !req.body.endDate || !req.file) {
+    // Validate required multilingual fields
+    if (!req.body.title_pt || !req.body.title_en || !req.body.description_pt || !req.body.description_en || 
+        !req.body.discountPercentage || !req.body.startDate || !req.body.endDate || !req.file) {
       console.log('Missing required fields:', {
-        title: !req.body.title,
-        description: !req.body.description,
+        title_pt: !req.body.title_pt,
+        title_en: !req.body.title_en,
+        description_pt: !req.body.description_pt,
+        description_en: !req.body.description_en,
         discountPercentage: !req.body.discountPercentage,
         startDate: !req.body.startDate,
         endDate: !req.body.endDate,
         file: !req.file
       });
       return res.status(400).json({
-        message: 'Missing required fields. Please provide title, description, discountPercentage, startDate, endDate, and bannerImage'
+        message: 'Missing required fields. Please provide title (Portuguese and English), description (Portuguese and English), discountPercentage, startDate, endDate, and bannerImage'
       });
     }
 
@@ -176,10 +178,16 @@ router.post('/', verifyToken, isAdmin, upload.single('bannerImage'), async (req,
     const fileName = `offers/${uuidv4()}.${fileExtension}`;
     const bannerImageUrl = await uploadToS3(req.file, fileName);
 
-    // Create offer object
+    // Create offer object with multilingual fields
     const offerData = {
-      title: req.body.title,
-      description: req.body.description,
+      title: {
+        pt: req.body.title_pt,
+        en: req.body.title_en
+      },
+      description: {
+        pt: req.body.description_pt,
+        en: req.body.description_en
+      },
       category: req.body.category || 'seasonal',
       discountPercentage: Number(req.body.discountPercentage),
       products: productIds,
@@ -215,6 +223,23 @@ router.put('/:id', verifyToken, isAdmin, upload.single('bannerImage'), async (re
     const offer = await Offer.findById(req.params.id);
     if (!offer) {
       return res.status(404).json({ message: 'Offer not found' });
+    }
+
+    // Validate required multilingual fields
+    if (!req.body.title_pt || !req.body.title_en || !req.body.description_pt || !req.body.description_en || 
+        !req.body.discountPercentage || !req.body.startDate || !req.body.endDate) {
+      console.log('Missing required fields:', {
+        title_pt: !req.body.title_pt,
+        title_en: !req.body.title_en,
+        description_pt: !req.body.description_pt,
+        description_en: !req.body.description_en,
+        discountPercentage: !req.body.discountPercentage,
+        startDate: !req.body.startDate,
+        endDate: !req.body.endDate
+      });
+      return res.status(400).json({
+        message: 'Missing required fields. Please provide title (Portuguese and English), description (Portuguese and English), discountPercentage, startDate, and endDate'
+      });
     }
 
     // Validate products array if provided
@@ -258,10 +283,16 @@ router.put('/:id', verifyToken, isAdmin, upload.single('bannerImage'), async (re
       bannerImageUrl = await uploadToS3(req.file, fileName);
     }
 
-    // Update offer data
+    // Update offer data with multilingual fields
     const updateData = {
-      title: req.body.title,
-      description: req.body.description,
+      title: {
+        pt: req.body.title_pt,
+        en: req.body.title_en
+      },
+      description: {
+        pt: req.body.description_pt,
+        en: req.body.description_en
+      },
       category: req.body.category,
       discountPercentage: Number(req.body.discountPercentage),
       products: productIds,

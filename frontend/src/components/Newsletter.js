@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FaEnvelope, FaTimes, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import API_URL from '../config/api';
 import './Newsletter.css';
 
 function Newsletter() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +25,7 @@ function Newsletter() {
 
     if (!validateEmail(email)) {
       setValidationState('invalid');
-      setError('Please enter a valid email address.');
+      setError(t('newsletter.invalidEmail'));
       return;
     }
 
@@ -36,7 +38,7 @@ function Newsletter() {
       
       if (statusResponse.data.status === 'subscribed') {
         setValidationState('invalid');
-        setError('This email is already subscribed to our newsletter.');
+        setError(t('newsletter.alreadySubscribed'));
         return;
       }
 
@@ -44,7 +46,7 @@ function Newsletter() {
         // Resend confirmation email
         await axios.post(`${API_URL}/api/newsletter/subscribe`, { email });
         setValidationState('valid');
-        setMessage('A new confirmation email has been sent. Please check your inbox.');
+        setMessage(t('newsletter.confirmationSent'));
         return;
       }
 
@@ -55,7 +57,7 @@ function Newsletter() {
       setEmail('');
     } catch (err) {
       setValidationState('invalid');
-      const errorMessage = err.response?.data?.message || 'Failed to subscribe. Please try again later.';
+      const errorMessage = err.response?.data?.message || t('newsletter.failedToSubscribe');
       setError(errorMessage);
       console.error('Newsletter subscription error:', err);
     } finally {
@@ -79,8 +81,8 @@ function Newsletter() {
   return (
     <div className="newsletter-container">
       <div className="newsletter-content">
-        <h2>Subscribe to Our Newsletter</h2>
-        <p>Stay updated with our latest products and special offers!</p>
+        <h2>{t('newsletter.title')}</h2>
+        <p>{t('newsletter.description')}</p>
         
         <form onSubmit={handleSubmit} className="newsletter-form">
           <div className={`input-group ${validationState}`}>
@@ -94,7 +96,7 @@ function Newsletter() {
                   setError('');
                   setMessage('');
                 }}
-                placeholder="Enter your email address"
+                placeholder={t('newsletter.placeholder')}
                 disabled={isLoading}
                 required
               />
@@ -105,7 +107,7 @@ function Newsletter() {
               className={isLoading ? 'loading' : ''}
               disabled={isLoading}
             >
-              {isLoading ? 'Sending...' : 'Subscribe'}
+              {isLoading ? t('newsletter.sending') : t('newsletter.subscribe')}
             </button>
           </div>
           

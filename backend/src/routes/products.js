@@ -7,7 +7,7 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const { v4: uuidv4 } = require('uuid');
 
 // Valid categories
-const VALID_CATEGORIES = ['Foodstuffs', 'Drinks', 'Fashion', 'Home & Living'];
+const VALID_CATEGORIES = ['Foodstuffs', 'Household', 'Beverages', 'Electronics', 'Construction Materials', 'Plastics', 'Cosmetics', 'Powder Detergent', 'Liquid Detergent', 'Juices', 'Dental Care', 'Beef'];
 
 // Configure multer for memory storage
 const upload = multer({
@@ -30,7 +30,7 @@ const upload = multer({
 router.get('/public', async (req, res) => {
   try {
     const { category, sort, limit } = req.query;
-    let query = Product.find({ stock: { $gt: 0 } }); // Only show products in stock
+    let query = Product.find();
 
     if (category) {
       query = query.where('category').equals(category);
@@ -48,10 +48,6 @@ router.get('/public', async (req, res) => {
         case '-createdAt':
           query = query.sort('-createdAt');
           break;
-        case 'popular':
-        case '-sales':
-          query = query.sort('-sales');
-          break;
         case 'name':
           query = query.sort('name');
           break;
@@ -64,8 +60,10 @@ router.get('/public', async (req, res) => {
       query = query.limit(parseInt(limit));
     }
 
-    const products = await query.exec();
-    res.json({ products });
+    const products = await query.lean().exec();
+    // Remove price from each product
+    const productsNoPrice = products.map(({ price, ...rest }) => rest);
+    res.json({ products: productsNoPrice });
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ message: error.message });
@@ -75,7 +73,7 @@ router.get('/public', async (req, res) => {
 // Get single product by ID (public)
 router.get('/public/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).lean();
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -86,7 +84,7 @@ router.get('/public/:id', async (req, res) => {
 });
 
 // Protected Admin Routes
-// Get all products (including out of stock)
+// Get all products
 router.get('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const products = await Product.find().sort('-createdAt');
@@ -101,7 +99,6 @@ router.post('/', verifyToken, isAdmin, upload.single('image'), async (req, res) 
   try {
     let imageUrl = '';
     if (req.file) {
-      // Upload image to S3
       const fileExtension = req.file.originalname.split('.').pop();
       const fileName = `${uuidv4()}.${fileExtension}`;
       imageUrl = await uploadToS3(req.file, fileName);
@@ -109,27 +106,29 @@ router.post('/', verifyToken, isAdmin, upload.single('image'), async (req, res) 
       return res.status(400).json({ message: 'Product image is required' });
     }
 
-    // Validate and capitalize category
     const category = req.body.category;
     const normalizedCategory = VALID_CATEGORIES.find(
       validCat => validCat.toLowerCase() === category.toLowerCase()
     );
-    
     if (!normalizedCategory) {
       return res.status(400).json({ 
         message: `Invalid category. Must be one of: ${VALID_CATEGORIES.join(', ')}` 
       });
     }
 
+    // Handle multilingual fields
     const productData = {
-      name: req.body.name,
-      description: req.body.description,
+      name: {
+        pt: req.body.name_pt,
+        en: req.body.name_en
+      },
+      description: {
+        pt: req.body.description_pt,
+        en: req.body.description_en
+      },
       price: parseFloat(req.body.price),
-      category: normalizedCategory, // Use the properly capitalized category
-      stock: parseInt(req.body.stock),
-      imageUrl: imageUrl,
-      isOnSale: req.body.isOnSale === 'true',
-      salePrice: req.body.isOnSale === 'true' ? parseFloat(req.body.salePrice) : undefined
+      category: normalizedCategory,
+      imageUrl: imageUrl
     };
 
     const product = new Product(productData);
@@ -151,21 +150,24 @@ router.put('/:id', verifyToken, isAdmin, upload.single('image'), async (req, res
 
     let imageUrl = product.imageUrl;
     if (req.file) {
-      // Upload new image to S3
       const fileExtension = req.file.originalname.split('.').pop();
       const fileName = `${uuidv4()}.${fileExtension}`;
       imageUrl = await uploadToS3(req.file, fileName);
     }
 
+    // Handle multilingual fields
     const updateData = {
-      name: req.body.name,
-      description: req.body.description,
+      name: {
+        pt: req.body.name_pt,
+        en: req.body.name_en
+      },
+      description: {
+        pt: req.body.description_pt,
+        en: req.body.description_en
+      },
       price: parseFloat(req.body.price),
       category: req.body.category,
-      stock: parseInt(req.body.stock),
-      imageUrl: imageUrl,
-      isOnSale: req.body.isOnSale === 'true',
-      salePrice: req.body.isOnSale === 'true' ? parseFloat(req.body.salePrice) : undefined
+      imageUrl: imageUrl
     };
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -187,7 +189,6 @@ router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-
     await product.remove();
     res.json({ message: 'Product removed successfully' });
   } catch (error) {

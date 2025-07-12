@@ -16,8 +16,8 @@
     "about": "About",
     "contact": "Contact"
   },
-  "products": {
-    "title": "Products",
+  "AdminProductList": {
+    "images": "Images",
     "name": "Product Name",
     "description": "Description",
     "addProduct": "Add Product",
@@ -26,11 +26,38 @@
     "price": "Price",
     "category": "Category",
     "stock": "Stock",
-    "images": "Images"
+    "noProducts": "No products found.",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "productForm": {
+    "editTitle": "Edit Product",
+    "addTitle": "Add Product",
+    "namePT": "Name (Portuguese)",
+    "nameEN": "Name (English)",
+    "descriptionPT": "Description (Portuguese)",
+    "descriptionEN": "Description (English)",
+    "price": "Price",
+    "category": "Category",
+    "image": "Image",
+    "uploadImage": "Click to upload image",
+    "imagePreviewAlt": "Image preview",
+    "saving": "Saving...",
+    "save": "Save",
+    "create": "Create",
+    "cancel": "Cancel",
+    "successAdd": "Product added successfully!",
+    "successUpdate": "Product updated successfully!",
+    "errorRequired": "Please fill in all required fields."
   },
   "admin": {
     "dashboard": "Admin Dashboard",
+    "dashboardTitle": "Admin Dashboard",
+    "logout": "Logout",
     "products": "Products",
+    "announcements": "Announcements",
+    "weeklyOffers": "Weekly Offers",
+    "newsletter": "Newsletter",
     "orders": "Orders",
     "users": "Users",
     "settings": "Settings",
@@ -46,5 +73,8 @@
   "languages": {
     "en": "English",
     "pt": "Portuguese"
+  },
+  "messages": {
+    "confirmDeleteProduct": "Are you sure you want to delete this product?"
   }
 } 

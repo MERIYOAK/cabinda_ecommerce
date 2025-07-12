@@ -1,51 +1,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Sitemap.css';
+import { useTranslation } from 'react-i18next';
 
 const Sitemap = () => {
+  const { t } = useTranslation();
   const sitemapData = [
     {
-      title: 'Main Pages',
+      title: t('sitemap.mainPages'),
       links: [
-        { name: 'Home', path: '/' },
-        { name: 'Products', path: '/products' },
-        { name: 'About Us', path: '/about' },
-        { name: 'Contact', path: '/contact' }
+        { name: t('navbar.home'), path: '/' },
+        { name: t('navbar.products'), path: '/products' },
+        { name: t('footer.aboutUs'), path: '/about' },
+        { name: t('navbar.contact'), path: '/contact' }
       ]
     },
     {
-      title: 'Product Categories',
+      title: t('sitemap.productCategories'),
       links: [
-        { name: 'Electronics', path: '/products?category=electronics' },
-        { name: 'Clothing', path: '/products?category=clothing' },
-        { name: 'Home & Living', path: '/products?category=home-living' },
-        { name: 'Books', path: '/products?category=books' }
+        { name: t('products.foodstuffs'), path: '/products?category=Foodstuffs' },
+        { name: t('products.household'), path: '/products?category=Household' },
+        { name: t('products.beverages'), path: '/products?category=Beverages' },
+        { name: t('products.electronics'), path: '/products?category=Electronics' },
+        { name: t('products.constructionMaterials'), path: '/products?category=Construction Materials' },
+        { name: t('products.plastics'), path: '/products?category=Plastics' },
+        { name: t('products.cosmetics'), path: '/products?category=Cosmetics' },
+        { name: t('products.powderDetergent'), path: '/products?category=Powder Detergent' },
+        { name: t('products.liquidDetergent'), path: '/products?category=Liquid Detergent' },
+        { name: t('products.juices'), path: '/products?category=Juices' },
+        { name: t('products.dentalCare'), path: '/products?category=Dental Care' },
+        { name: t('products.beef'), path: '/products?category=Beef' }
       ]
     },
     {
-      title: 'Customer Service',
+      title: t('sitemap.company'),
       links: [
-        { name: 'FAQ', path: '/faq' },
-        { name: 'Shipping Information', path: '/shipping' },
-        { name: 'Returns Policy', path: '/returns' },
-        { name: 'Track Order', path: '/track-order' }
-      ]
-    },
-    {
-      title: 'Legal',
-      links: [
-        { name: 'Privacy Policy', path: '/privacy-policy' },
-        { name: 'Terms of Service', path: '/terms-of-service' },
-        { name: 'Cookie Policy', path: '/cookie-policy' }
-      ]
-    },
-    {
-      title: 'Company',
-      links: [
-        { name: 'About Us', path: '/about' },
-        { name: 'Careers', path: '/careers' },
-        { name: 'Blog', path: '/blog' },
-        { name: 'Contact Us', path: '/contact' }
+        { name: t('footer.aboutUs'), path: '/about' },
+        { name: t('navbar.contact'), path: '/contact' }
       ]
     }
   ];
@@ -53,7 +44,7 @@ const Sitemap = () => {
   return (
     <div className="sitemap">
       <div className="container">
-        <h1>Sitemap</h1>
+        <h1>{t('sitemap.title')}</h1>
         <div className="sitemap-grid">
           {sitemapData.map((section, index) => (
             <div key={index} className="sitemap-section">

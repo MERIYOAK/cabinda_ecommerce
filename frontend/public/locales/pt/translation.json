@@ -16,15 +16,25 @@
     "about": "Sobre",
     "contact": "Contato"
   },
-  "products": {
-    "title": "Produtos",
-    "addProduct": "Adicionar Produto",
-    "editProduct": "Editar Produto",
-    "deleteProduct": "Excluir Produto",
+  "productForm": {
+    "editTitle": "Editar Produto",
+    "addTitle": "Adicionar Produto",
+    "namePT": "Nome (Português)",
+    "nameEN": "Nome (Inglês)",
+    "descriptionPT": "Descrição (Português)",
+    "descriptionEN": "Descrição (Inglês)",
     "price": "Preço",
     "category": "Categoria",
-    "stock": "Estoque",
-    "images": "Imagens"
+    "image": "Imagem",
+    "uploadImage": "Clique para carregar imagem",
+    "imagePreviewAlt": "Pré-visualização da imagem",
+    "saving": "Salvando...",
+    "save": "Salvar",
+    "create": "Criar",
+    "cancel": "Cancelar",
+    "successAdd": "Produto adicionado com sucesso!",
+    "successUpdate": "Produto atualizado com sucesso!",
+    "errorRequired": "Por favor, preencha todos os campos obrigatórios."
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -33,5 +43,30 @@
   "languages": {
     "en": "Inglês",
     "pt": "Português"
+  },
+  "admin": {
+    "dashboard": "Painel de Administração",
+    "logout": "Sair",
+    "products": "Produtos",
+    "announcements": "Anúncios",
+    "weeklyOffers": "Ofertas Semanais",
+    "newsletter": "Newsletter"
+  },
+  "messages": {
+    "confirmDeleteProduct": "Tem certeza de que deseja excluir este produto?"
+  },
+  "AdminProductList": {
+    "images": "Imagens",
+    "name": "Nome do Produto",
+    "description": "Descrição",
+    "addProduct": "Adicionar Produto",
+    "editProduct": "Editar Produto",
+    "deleteProduct": "Excluir Produto",
+    "price": "Preço",
+    "category": "Categoria",
+    "stock": "Estoque",
+    "noProducts": "Nenhum produto encontrado.",
+    "edit": "Editar",
+    "delete": "Excluir"
   }
 } 

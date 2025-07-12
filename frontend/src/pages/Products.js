@@ -1,61 +1,104 @@
 import React, { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaFilter, FaSearch, FaChevronDown } from 'react-icons/fa';
+import { FaFilter, FaSearch, FaChevronDown, FaWhatsapp } from 'react-icons/fa';
 import axios from 'axios';
 import API_URL from '../config/api';
 import './Products.css';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
+
 // Memoized ProductCard component to prevent unnecessary re-renders
+const WHATSAPP_NUMBER = '244922706107'; // Updated WhatsApp number for client requests
+const MAX_DESCRIPTION_LENGTH = 'Natural fruit juice made from fresh tropical fruits. No added sugars.'.length;
+
 const ProductCard = memo(({ product }) => {
+  const { t, i18n } = useTranslation();
+  
+  // Helper function to safely get product name
+  const getProductName = (product) => {
+    if (typeof product.name === 'string') {
+      // Old structure - name is a string
+      return product.name;
+    } else if (product.name && typeof product.name === 'object') {
+      // New structure - name is an object with pt/en
+      return product.name[i18n.language] || product.name.en || product.name.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get product description
+  const getProductDescription = (product) => {
+    if (typeof product.description === 'string') {
+      // Old structure - description is a string
+      return product.description;
+    } else if (product.description && typeof product.description === 'object') {
+      // New structure - description is an object with pt/en
+      return product.description[i18n.language] || product.description.en || product.description.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to translate category names
+  const getTranslatedCategory = (category) => {
+    // Map category names to their translation keys
+    const categoryMap = {
+      'Foodstuffs': 'foodstuffs',
+      'Household': 'household',
+      'Beverages': 'beverages',
+      'Electronics': 'electronics',
+      'Construction Materials': 'constructionMaterials',
+      'Plastics': 'plastics',
+      'Cosmetics': 'cosmetics',
+      'Powder Detergent': 'powderDetergent',
+      'Liquid Detergent': 'liquidDetergent',
+      'Juices': 'juices',
+      'Dental Care': 'dentalCare',
+      'Beef': 'beef'
+    };
+    
+    const categoryKey = categoryMap[category] || category.toLowerCase().replace(/\s+/g, '');
+    return t(`products.${categoryKey}`, category);
+  };
+
+  const handleWhatsAppClick = () => {
+    const message = `${product.imageUrl}\n\nHello, I'm interested in this product: ${getProductName(product)}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+  
+  const description = getProductDescription(product);
+  
   return (
-    <div className="product-card">
-      <div className="product-image">
+    <div className="products-page-product-card">
+      <div className="products-page-product-image">
         <img 
           src={product.imageUrl} 
-          alt={product.name}
+          alt={getProductName(product)}
           onError={(e) => {
             console.error('Image failed to load:', {
-              product: product.name,
+              product: getProductName(product),
               url: product.imageUrl
             });
             e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
           }}
         />
-        {product.isOnSale && (
-          <div className="sale-badge">Sale!</div>
-        )}
       </div>
-      <div className="product-info">
-        <div className="product-header">
-          <h3>{product.name}</h3>
-          <span className="category-tag">{product.category}</span>
+      <div className="products-page-product-info">
+        <div className="products-page-product-header">
+          <h3>{getProductName(product)}</h3>
+          <span className="products-page-category-tag">{getTranslatedCategory(product.category)}</span>
         </div>
-        <div className="product-description">
+        <div className="products-page-product-description">
           <div className="content">
-            {product.description}
+            {description.length > MAX_DESCRIPTION_LENGTH
+              ? description.slice(0, MAX_DESCRIPTION_LENGTH) + '...'
+              : description}
           </div>
         </div>
-        <div className="product-footer">
-          <div className="price-container">
-            {product.isOnSale ? (
-              <>
-                <span className="original-price">${product.price}</span>
-                <span className="sale-price">${product.salePrice}</span>
-              </>
-            ) : (
-              <span className="price">${product.price}</span>
-            )}
-          </div>
-          <div className="product-meta">
-            <span className={`stock-status ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}`}>
-              {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-            </span>
-            {product.rating > 0 && (
-              <span className="rating">
-                ★ {product.rating.toFixed(1)} ({product.numReviews})
-              </span>
-            )}
-          </div>
+        <div className="products-page-product-footer" style={{ paddingBottom: '1.5rem' }}>
+          {/* <span className="product-price">${product.price}</span> */}
+          <button className="products-page-whatsapp-buy-btn" onClick={handleWhatsAppClick}>
+            <FaWhatsapp style={{ marginRight: '0.5rem', fontSize: '1.2rem' }} /> {t('products.buy')}
+          </button>
         </div>
       </div>
     </div>
@@ -64,29 +107,37 @@ const ProductCard = memo(({ product }) => {
 
 // Memoized ProductsGrid component
 const ProductsGrid = memo(({ products, loading, error }) => {
+  const { t } = useTranslation();
+  
   if (loading) {
     return (
-      <div className="loading-overlay">
-        <LoadingSpinner size="large" color="primary" />
+      <div className="products-page-loading-overlay">
+        <LoadingSpinner 
+          size="large" 
+          color="primary" 
+          variant="wave"
+          text={t('products.loading')}
+          showText={true}
+        />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="error-message">
-        <h2>Error</h2>
+      <div className="products-page-error-message">
+        <h2>{t('products.error')}</h2>
         <p>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="products-grid">
+    <div className="products-page-grid">
       {products.length === 0 ? (
-        <div className="no-results">
-          <h2>No Products Found</h2>
-          <p>No products found matching your criteria.</p>
+        <div className="products-page-no-results">
+          <h2>{t('products.noProductsFound')}</h2>
+          <p>{t('products.noProductsFoundDesc')}</p>
         </div>
       ) : (
         products.map(product => (
@@ -99,22 +150,15 @@ const ProductsGrid = memo(({ products, loading, error }) => {
 
 // Memoized FilterSection component with its own state management
 const FilterSection = memo(({ initialFilters, onFilterChange }) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [localFilters, setLocalFilters] = useState(initialFilters);
   const [searchInput, setSearchInput] = useState(initialFilters.search || '');
-  const [priceRange, setPriceRange] = useState({
-    minPrice: initialFilters.minPrice || '',
-    maxPrice: initialFilters.maxPrice || ''
-  });
 
   // Update local filters and price range when initial filters change
   useEffect(() => {
     setLocalFilters(initialFilters);
     setSearchInput(initialFilters.search || '');
-    setPriceRange({
-      minPrice: initialFilters.minPrice || '',
-      maxPrice: initialFilters.maxPrice || ''
-    });
   }, [initialFilters]);
 
   const handleFilterChange = useCallback((e) => {
@@ -131,31 +175,12 @@ const FilterSection = memo(({ initialFilters, onFilterChange }) => {
       return () => clearTimeout(timeoutId);
     }
 
-    // Handle price range inputs separately
-    if (name === 'minPrice' || name === 'maxPrice') {
-      setPriceRange(prev => ({
-        ...prev,
-        [name]: value
-      }));
-      return;
-    }
-
     setLocalFilters(prev => ({ ...prev, [name]: newValue }));
     onFilterChange(name, newValue);
     if (name !== 'search') {
       setIsVisible(false);
     }
   }, [onFilterChange]);
-
-  const handlePriceRangeSubmit = (e) => {
-    e.preventDefault();
-    // Only update if at least one value is entered
-    if (priceRange.minPrice || priceRange.maxPrice) {
-      onFilterChange('minPrice', priceRange.minPrice);
-      onFilterChange('maxPrice', priceRange.maxPrice);
-      setIsVisible(false);
-    }
-  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -169,148 +194,96 @@ const FilterSection = memo(({ initialFilters, onFilterChange }) => {
       minPrice: '',
       maxPrice: '',
       sortBy: 'name',
-      search: '',
-      inStock: false
+      search: ''
     };
     setLocalFilters(clearedFilters);
     setSearchInput('');
-    setPriceRange({ minPrice: '', maxPrice: '' });
     Object.entries(clearedFilters).forEach(([name, value]) => {
       onFilterChange(name, value);
     });
     setIsVisible(false);
   }, [onFilterChange]);
 
-  // Click outside handler
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const filtersWrapper = document.querySelector('.filters-wrapper');
-      if (isVisible && filtersWrapper && !filtersWrapper.contains(event.target)) {
-        setIsVisible(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isVisible]);
-
   return (
     <div 
-      className="filters-wrapper"
-      onMouseEnter={() => !isVisible && setIsVisible(true)}
-      onMouseLeave={() => isVisible && setIsVisible(true)}
+      className="products-page-filters-wrapper"
       >
       <button 
-        className={`filter-toggle ${isVisible ? 'active' : ''}`}
-        onClick={() => setIsVisible(!isVisible)}
+        className={`products-page-filter-toggle ${isVisible ? 'active' : ''}`}
+        onClick={() => setIsVisible(v => !v)}
       >
         <FaFilter />
-        <span>Filters</span>
+        <span>{t('products.filters')}</span>
         <FaChevronDown className="chevron-icon" />
       </button>
 
-      <div className={`filters ${isVisible ? 'show' : ''}`}>
-        <div className="search-wrapper filter-group" style={{ '--index': 0 }}>
-          <label className="filter-label">Search Products</label>
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <div className="search-input-wrapper">
-              <input
-                type="text"
-                name="search"
-                value={searchInput}
-                onChange={handleFilterChange}
-                placeholder="Search products..."
-                className="search-input"
-                autoComplete="off"
-              />
-              <FaSearch className="search-icon"/>
-            </div>
-            <button type="submit" style={{ display: 'none' }}>Search</button>
+      <div
+        className={`products-page-filters${isVisible ? ' show' : ''}`}
+        style={{
+          maxHeight: isVisible ? '600px' : '0',
+          overflow: 'hidden',
+          transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
+        <div className="products-page-search-wrapper products-page-filter-group" style={{ '--index': 0 }}>
+          <label className="products-page-filter-label">{t('products.searchLabel')}</label>
+          <form onSubmit={handleSearchSubmit} className="products-page-search-input-wrapper">
+            <input
+              type="text"
+              name="search"
+              value={searchInput}
+              onChange={handleFilterChange}
+              placeholder={t('products.searchPlaceholder')}
+              className="products-page-search-input"
+            />
+            <FaSearch className="products-page-search-icon" />
           </form>
         </div>
 
-        <div className="filter-group" style={{ '--index': 1 }}>
-          <label className="filter-label">Category</label>
+        <div className="products-page-filter-group" style={{ '--index': 1 }}>
+          <label className="products-page-filter-label">{t('products.categoryLabel')}</label>
           <select
             name="category"
             value={localFilters.category}
             onChange={handleFilterChange}
-            className="category-filter"
+            className="products-page-category-filter"
           >
-            <option value="">All Categories</option>
-            <option value="Foodstuffs">Foodstuffs</option>
-            <option value="Drinks">Drinks</option>
-            <option value="Fashion">Fashion</option>
-            <option value="Home & Living">Home & Living</option>
+            <option value="">{t('products.allCategories')}</option>
+            <option value="Foodstuffs">{t('products.foodstuffs')}</option>
+            <option value="Household">{t('products.household')}</option>
+            <option value="Beverages">{t('products.beverages')}</option>
+            <option value="Electronics">{t('products.electronics')}</option>
+            <option value="Construction Materials">{t('products.constructionMaterials')}</option>
+            <option value="Plastics">{t('products.plastics')}</option>
+            <option value="Cosmetics">{t('products.cosmetics')}</option>
+            <option value="Powder Detergent">{t('products.powderDetergent')}</option>
+            <option value="Liquid Detergent">{t('products.liquidDetergent')}</option>
+            <option value="Juices">{t('products.juices')}</option>
+            <option value="Dental Care">{t('products.dentalCare')}</option>
+            <option value="Beef">{t('products.beef')}</option>
           </select>
         </div>
 
-        <div className="filter-group" style={{ '--index': 2 }}>
-          <label className="filter-label">Price Range</label>
-          <form onSubmit={handlePriceRangeSubmit} className="price-range">
-            <input
-              type="number"
-              name="minPrice"
-              value={priceRange.minPrice}
-              onChange={handleFilterChange}
-              placeholder="Min"
-              min="0"
-              className="price-input"
-            />
-            <span className="price-separator">to</span>
-            <input
-              type="number"
-              name="maxPrice"
-              value={priceRange.maxPrice}
-              onChange={handleFilterChange}
-              placeholder="Max"
-              min="0"
-              className="price-input"
-            />
-            <button 
-              type="submit" 
-              className="apply-price-button"
-              style={{ display: 'none' }}
-            >
-              Apply
-            </button>
-          </form>
-        </div>
-
-        <div className="filter-group" style={{ '--index': 3 }}>
-          <label className="filter-label">Sort By</label>
+        <div className="products-page-filter-group" style={{ '--index': 2 }}>
+          <label className="products-page-filter-label">{t('products.sortBy')}</label>
           <select
             name="sortBy"
             value={localFilters.sortBy}
             onChange={handleFilterChange}
-            className="sort-filter"
+            className="products-page-sort-filter"
           >
-            <option value="name">Name (A-Z)</option>
-            <option value="-name">Name (Z-A)</option>
-            <option value="price">Price (Low to High)</option>
-            <option value="-price">Price (High to Low)</option>
-            <option value="-createdAt">Newest First</option>
-            <option value="-sales">Best Selling</option>
-            <option value="-rating">Highest Rated</option>
+            <option value="name">{t('products.sortNameAZ')}</option>
+            <option value="-name">{t('products.sortNameZA')}</option>
+            <option value="-createdAt">{t('products.sortNewest')}</option>
           </select>
         </div>
 
-        <div className="filter-group checkbox-group" style={{ '--index': 4 }}>
-          <label className="filter-label checkbox-label">
-            <input
-              type="checkbox"
-              name="inStock"
-              checked={localFilters.inStock}
-              onChange={handleFilterChange}
-            />
-            <span>In Stock Only</span>
-          </label>
-        </div>
-
-        <button onClick={handleClearFilters} className="clear-filters-button">
-          Clear All Filters
+        <button
+          type="button"
+          onClick={handleClearFilters}
+          className="products-page-clear-filters-button"
+        >
+          {t('products.clearAllFilters')}
         </button>
       </div>
     </div>
@@ -332,8 +305,7 @@ function Products() {
       search: params.get('search') || '',
       minPrice: params.get('minPrice') || '',
       maxPrice: params.get('maxPrice') || '',
-      sortBy: params.get('sort') || 'name',
-      inStock: params.get('inStock') === 'true'
+      sortBy: params.get('sort') || 'name'
     };
   });
 
@@ -372,8 +344,7 @@ function Products() {
       search: params.get('search') || '',
       minPrice: params.get('minPrice') || '',
       maxPrice: params.get('maxPrice') || '',
-      sortBy: params.get('sort') || 'name',
-      inStock: params.get('inStock') === 'true'
+      sortBy: params.get('sort') || 'name'
     };
 
     const currentFiltersStr = JSON.stringify(filters);
@@ -388,6 +359,30 @@ function Products() {
   const getFilteredProducts = useCallback((productList, currentFilters) => {
     let filtered = [...productList];
 
+    // Helper function to safely get product name
+    const getProductName = (product) => {
+      if (typeof product.name === 'string') {
+        // Old structure - name is a string
+        return product.name;
+      } else if (product.name && typeof product.name === 'object') {
+        // New structure - name is an object with pt/en
+        return product.name.en || product.name.pt || '';
+      }
+      return '';
+    };
+
+    // Helper function to safely get product description
+    const getProductDescription = (product) => {
+      if (typeof product.description === 'string') {
+        // Old structure - description is a string
+        return product.description;
+      } else if (product.description && typeof product.description === 'object') {
+        // New structure - description is an object with pt/en
+        return product.description.en || product.description.pt || '';
+      }
+      return '';
+    };
+
     // Apply category filter
     if (currentFilters.category) {
       filtered = filtered.filter(product => 
@@ -399,8 +394,8 @@ function Products() {
     if (currentFilters.search) {
       const searchTerm = currentFilters.search.toLowerCase();
       filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm)
+        getProductName(product).toLowerCase().includes(searchTerm) ||
+        getProductDescription(product).toLowerCase().includes(searchTerm)
       );
     }
 
@@ -417,11 +412,6 @@ function Products() {
       );
     }
 
-    // Apply stock filter
-    if (currentFilters.inStock) {
-      filtered = filtered.filter(product => product.stock > 0);
-    }
-
     // Apply sorting
     return filtered.sort((a, b) => {
       const sortField = currentFilters.sortBy.startsWith('-') ? 
@@ -431,7 +421,7 @@ function Products() {
       if (sortField === 'price') {
         return (a.price - b.price) * sortOrder;
       } else if (sortField === 'name') {
-        return a.name.localeCompare(b.name) * sortOrder;
+        return getProductName(a).localeCompare(getProductName(b)) * sortOrder;
       } else if (sortField === 'createdAt') {
         return (new Date(a.createdAt) - new Date(b.createdAt)) * sortOrder;
       } else if (sortField === 'sales') {
@@ -462,7 +452,6 @@ function Products() {
       if (filters.minPrice) newParams.set('minPrice', filters.minPrice);
       if (filters.maxPrice) newParams.set('maxPrice', filters.maxPrice);
       if (filters.sortBy) newParams.set('sort', filters.sortBy);
-      if (filters.inStock) newParams.set('inStock', 'true');
 
       const newSearch = newParams.toString();
       const currentSearch = currentParams.toString();
@@ -485,7 +474,7 @@ function Products() {
 
   if (loading) {
     return (
-      <div className="loading-overlay">
+      <div className="products-page-loading-overlay">
         <LoadingSpinner size="large" color="primary" />
       </div>
     );
@@ -493,7 +482,7 @@ function Products() {
 
   return (
     <div className="products-page">
-      <div className="container">
+      <div className="products-page-container">
         <FilterSection 
           initialFilters={filters}
           onFilterChange={handleFilterChange}

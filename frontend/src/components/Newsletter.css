@@ -48,7 +48,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: #ff4d4d;
+  background: #25d366;
   border-radius: 2px;
 }
 
@@ -86,8 +86,8 @@
 
 .input-wrapper input:focus {
   outline: none;
-  border-color: #ff4d4d;
-  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.1);
+  border-color: #25d366;
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
 }
 
 .input-wrapper input:disabled {
@@ -110,13 +110,13 @@
 }
 
 .validation-icon.error {
-  color: #ff4d4d;
+  color: #25d366;
 }
 
 .input-group button {
   width: 100%;
   padding: 12px 25px;
-  background: #ff4d4d;
+  background: #25d366;
   color: white;
   border: none;
   border-radius: 25px;
@@ -131,9 +131,9 @@
 }
 
 .input-group button:hover:not(:disabled) {
-  background: #ff3333;
+  background: #128c7e;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.2);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
 }
 
 .input-group button:disabled {
@@ -146,7 +146,7 @@
 }
 
 .input-group.invalid input {
-  border-color: #ff4d4d;
+  border-color: #25d366;
 }
 
 .message {
@@ -166,9 +166,9 @@
 }
 
 .message.error {
-  background: #fff5f5;
-  color: #c53030;
-  border: 1px solid #feb2b2;
+  background: #f0fff4;
+  color: #25d366;
+  border: 1px solid #9ae6b4;
 }
 
 @keyframes slideUp {

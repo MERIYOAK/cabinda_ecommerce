@@ -2,19 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 import './Footer.css';
+import { useTranslation } from 'react-i18next';
 
 function Footer() {
-
-
-
+  const { t } = useTranslation();
 
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section about-section">
-            <h3>About RetailShop</h3>
-            <p>Your trusted retail shop in Cabinda, Angola. We pride ourselves in offering quality foodstuffs and drinks at competitive prices, serving our community with excellence since 2020.</p>
+            <h3>{t('footer.aboutTitle')}</h3>
+            <p>{t('footer.aboutDescription')}</p>
             <div className="social-links">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
                 <FaFacebook />
@@ -29,27 +28,26 @@ function Footer() {
           </div>
 
           <div className="footer-section links-section">
-            <h3>Quick Links</h3>
+            <h3>{t('footer.quickLinks')}</h3>
             <ul className="footer-links">
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/products">Products</Link></li>
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
-              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
-              <li><Link to="/terms-of-service">Terms of Service</Link></li>
+              <li><Link to="/">{t('navbar.home')}</Link></li>
+              <li><Link to="/products">{t('navbar.products')}</Link></li>
+              <li><Link to="/about">{t('footer.aboutUs')}</Link></li>
+              <li><Link to="/contact">{t('navbar.contact')}</Link></li>
+              <li><Link to="/sitemap">{t('footer.sitemap')}</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} RetailShop. All rights reserved. Developed by <a href="https://meronvault.com" target="_blank" rel="noopener noreferrer">Meroni</a></p>
-          <div className="footer-bottom-links">
-            <Link to="/privacy-policy">Privacy Policy</Link>
-            <span className="separator">|</span>
-            <Link to="/terms-of-service">Terms of Service</Link>
-            <span className="separator">|</span>
-            <Link to="/sitemap">Sitemap</Link>
-          </div>
+          <p style={{ textAlign: 'center', width: '100%', margin: 0 }}>
+            &copy; {new Date().getFullYear()} {t('footer.copyright')}
+            <span style={{ marginLeft: '8px' }}>
+              <a href="https://meronvault.com" target="_blank" rel="noopener noreferrer">
+                <span className="meroni-glow">Meroni</span>
+              </a>
+            </span>
+          </p>
         </div>
       </div>
     </footer>

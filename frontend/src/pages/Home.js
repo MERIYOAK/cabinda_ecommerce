@@ -5,15 +5,42 @@ import axios from 'axios';
 import { useProductCache } from '../hooks/useProductCache';
 import Newsletter from '../components/Newsletter';
 import WeeklyOffers from '../components/WeeklyOffers';
+import SocialShare from '../components/SocialShare';
 import API_URL from '../config/api';
 import './Home.css';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
+
+// Add this mapping for category images at the top of the file (after imports, before Home function)
+const categoryImages = {
+  'Foodstuffs': require('../images/shop1.jpg'),
+  'Household': require('../images/shop2.jpg'),
+  'Beverages': require('../images/shop3.jpg'),
+  'Electronics': require('../images/shop4.jpg'),
+  'Construction Materials': require('../images/shop5.jpg'),
+  'Plastics': require('../images/shop6.jpg'),
+  'Cosmetics': require('../images/shop1.jpg'),
+  'Powder Detergent': require('../images/shop2.jpg'),
+  'Liquid Detergent': require('../images/shop3.jpg'),
+  'Juices': require('../images/shop4.jpg'),
+  'Dental Care': require('../images/shop5.jpg'),
+  'Beef': require('../images/shop6.jpg'),
+};
+
+// Shop images (replace with your actual uploaded paths if needed)
+const shopImages = [
+  require('../images/shop1.jpg'), // Place your first shop image in src/assets/shop1.jpg
+  require('../images/shop2.jpg'), // Place your second shop image in src/assets/shop2.jpg
+];
 
 function Home() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { getProductsByCategory } = useProductCache();
   const [latestProducts, setLatestProducts] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
+  const [bestSellersIndex, setBestSellersIndex] = useState(0);
+  const [testimonialsIndex, setTestimonialsIndex] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -26,45 +53,181 @@ function Home() {
   const sliderRef = useRef(null);
   const autoPlayRef = useRef(null);
 
+  // Helper function to safely get product name
+  const getProductName = (product) => {
+    if (typeof product.name === 'string') {
+      // Old structure - name is a string
+      return product.name;
+    } else if (product.name && typeof product.name === 'object') {
+      // New structure - name is an object with pt/en
+      return product.name[i18n.language] || product.name.en || product.name.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get announcement title
+  const getAnnouncementTitle = (announcement) => {
+    if (typeof announcement.title === 'string') {
+      return announcement.title;
+    } else if (announcement.title && typeof announcement.title === 'object') {
+      return announcement.title[i18n.language] || announcement.title.en || announcement.title.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to safely get announcement content
+  const getAnnouncementContent = (announcement) => {
+    if (typeof announcement.content === 'string') {
+      return announcement.content;
+    } else if (announcement.content && typeof announcement.content === 'object') {
+      return announcement.content[i18n.language] || announcement.content.en || announcement.content.pt || '';
+    }
+    return '';
+  };
+
+  // Helper function to translate announcement category
+  const getAnnouncementCategory = (category) => {
+    const categoryKey = category.toLowerCase().replace(' ', '');
+    return t(`announcementForm.categories.${categoryKey}`, category);
+  };
+
+  // Helper function to translate category names
+  const getTranslatedCategory = (category) => {
+    // Map category names to their translation keys
+    const categoryMap = {
+      'Foodstuffs': 'foodstuffs',
+      'Household': 'household',
+      'Beverages': 'beverages',
+      'Electronics': 'electronics',
+      'Construction Materials': 'constructionMaterials',
+      'Plastics': 'plastics',
+      'Cosmetics': 'cosmetics',
+      'Powder Detergent': 'powderDetergent',
+      'Liquid Detergent': 'liquidDetergent',
+      'Juices': 'juices',
+      'Dental Care': 'dentalCare',
+      'Beef': 'beef'
+    };
+    
+    const categoryKey = categoryMap[category] || category.toLowerCase().replace(/\s+/g, '');
+    return t(`products.${categoryKey}`, category);
+  };
+
+  // Helper function to safely get product description
+  const getProductDescription = (product) => {
+    if (typeof product.description === 'string') {
+      // Old structure - description is a string
+      return product.description;
+    } else if (product.description && typeof product.description === 'object') {
+      // New structure - description is an object with pt/en
+      return product.description[i18n.language] || product.description.en || product.description.pt || '';
+    }
+    return '';
+  };
+
   const heroSlides = [
     {
-      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Welcome to Our Retail Store',
-      description: 'Discover a wide selection of quality products at competitive prices',
-      buttonText: 'Shop Now',
+      image: shopImages[0], // First shop image
+      title: t('home.shop'),
+      description: t('home.shop'),
+      buttonText: t('home.shopBtn'),
       buttonLink: '/products',
       position: 'center'
     },
     {
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Traditional Foodstuffs',
-      description: 'Explore our selection of authentic Angolan foodstuffs',
-      buttonText: 'View Foodstuffs',
+      image: categoryImages['Foodstuffs'],
+      title: t('home.foodstuffsTitle'),
+      description: t('home.foodstuffsDesc'),
+      buttonText: t('home.foodstuffsBtn'),
       buttonLink: '/products?category=Foodstuffs',
-      position: 'right'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Refreshing Drinks',
-      description: 'Traditional and modern beverages for every taste',
-      buttonText: 'View Drinks',
-      buttonLink: '/products?category=Drinks',
       position: 'left'
     },
     {
-      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Fashion Collection',
-      description: 'Stay stylish with our latest fashion items',
-      buttonText: 'Shop Fashion',
-      buttonLink: '/products?category=Fashion',
+      image: categoryImages['Household'],
+      title: t('home.householdTitle'),
+      description: t('home.householdDesc'),
+      buttonText: t('home.householdBtn'),
+      buttonLink: '/products?category=Household',
       position: 'right'
     },
     {
-      image: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1920&h=1080&q=80',
-      title: 'Home & Living',
-      description: 'Transform your living space with our premium collection',
-      buttonText: 'Explore Home',
-      buttonLink: '/products?category=Home%20%26%20Living',
+      image: categoryImages['Beverages'],
+      title: t('home.beveragesTitle'),
+      description: t('home.beveragesDesc'),
+      buttonText: t('home.beveragesBtn'),
+      buttonLink: '/products?category=Beverages',
+      position: 'center'
+    },
+    {
+      image: categoryImages['Electronics'],
+      title: t('home.electronicsTitle'),
+      description: t('home.electronicsDesc'),
+      buttonText: t('home.electronicsBtn'),
+      buttonLink: '/products?category=Electronics',
+      position: 'left'
+    },
+    {
+      image: categoryImages['Construction Materials'],
+      title: t('home.constructionTitle'),
+      description: t('home.constructionDesc'),
+      buttonText: t('home.constructionBtn'),
+      buttonLink: '/products?category=Construction Materials',
+      position: 'right'
+    },
+    {
+      image: categoryImages['Plastics'],
+      title: t('home.plasticsTitle'),
+      description: t('home.plasticsDesc'),
+      buttonText: t('home.plasticsBtn'),
+      buttonLink: '/products?category=Plastics',
+      position: 'center'
+    },
+    {
+      image: categoryImages['Cosmetics'],
+      title: t('home.cosmeticsTitle'),
+      description: t('home.cosmeticsDesc'),
+      buttonText: t('home.cosmeticsBtn'),
+      buttonLink: '/products?category=Cosmetics',
+      position: 'left'
+    },
+    {
+      image: categoryImages['Powder Detergent'],
+      title: t('home.powderDetergentTitle'),
+      description: t('home.powderDetergentDesc'),
+      buttonText: t('home.powderDetergentBtn'),
+      buttonLink: '/products?category=Powder Detergent',
+      position: 'right'
+    },
+    {
+      image: categoryImages['Liquid Detergent'],
+      title: t('home.liquidDetergentTitle'),
+      description: t('home.liquidDetergentDesc'),
+      buttonText: t('home.liquidDetergentBtn'),
+      buttonLink: '/products?category=Liquid Detergent',
+      position: 'center'
+    },
+    {
+      image: categoryImages['Juices'],
+      title: t('home.juicesTitle'),
+      description: t('home.juicesDesc'),
+      buttonText: t('home.juicesBtn'),
+      buttonLink: '/products?category=Juices',
+      position: 'left'
+    },
+    {
+      image: categoryImages['Dental Care'],
+      title: t('home.dentalCareTitle'),
+      description: t('home.dentalCareDesc'),
+      buttonText: t('home.dentalCareBtn'),
+      buttonLink: '/products?category=Dental Care',
+      position: 'right'
+    },
+    {
+      image: categoryImages['Beef'],
+      title: t('home.beefTitle'),
+      description: t('home.beefDesc'),
+      buttonText: t('home.beefBtn'),
+      buttonLink: '/products?category=Beef',
       position: 'center'
     }
   ];
@@ -111,7 +274,7 @@ function Home() {
       try {
         const [productsResponse, bestSellersResponse, announcementsResponse] = await Promise.all([
           axios.get(`${API_URL}/api/products/public?sort=-createdAt&limit=4`),
-          axios.get(`${API_URL}/api/products/public?sort=-sales&limit=4`),
+          axios.get(`${API_URL}/api/products/public?sort=-sales&limit=10`), // Fetch up to 10 best sellers
           axios.get(`${API_URL}/api/announcements/public`)
         ]);
 
@@ -135,7 +298,7 @@ function Home() {
         }
 
         // Ensure we only take the top 4 best sellers
-        setBestSellers(bestSellersData.slice(0, 4));
+        setBestSellers(bestSellersData);
         setLatestProducts(latestProductsData);
         setAnnouncements(announcementsData);
         setLoading(false);
@@ -262,49 +425,41 @@ function Home() {
     }
   }, [navigate, getProductsByCategory]);
 
-  const categories = [
-    { 
-      name: 'Foodstuffs', 
-      image: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=800&h=600&q=80',
-      description: 'Traditional Angolan foodstuffs and ingredients'
-    },
-    { 
-      name: 'Drinks', 
-      image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&h=600&q=80',
-      description: 'Refreshing beverages and traditional drinks'
-    },
-    { 
-      name: 'Fashion', 
-      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&h=600&q=80',
-      description: 'Stylish clothing and accessories'
-    },
-    { 
-      name: 'Home & Living', 
-      image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&h=600&q=80',
-      description: 'Furniture and home decor'
-    }
+  const allCategories = [
+    'Foodstuffs',
+    'Household',
+    'Beverages',
+    'Electronics',
+    'Construction Materials',
+    'Plastics',
+    'Cosmetics',
+    'Powder Detergent',
+    'Liquid Detergent',
+    'Juices',
+    'Dental Care',
+    'Beef'
   ];
 
   const testimonials = [
     {
       id: 1,
-      name: 'John Smith',
-      role: 'Regular Customer',
-      comment: 'Excellent service and high-quality products. I always find what I need here.',
+      name: t('home.testimonial1.name'),
+      role: t('home.testimonial1.role'),
+      comment: t('home.testimonial1.comment'),
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80'
     },
     {
       id: 2,
-      name: 'Sarah Wilson',
-      role: 'Verified Buyer',
-      comment: 'Competitive prices and fast delivery. Highly recommend!',
+      name: t('home.testimonial2.name'),
+      role: t('home.testimonial2.role'),
+      comment: t('home.testimonial2.comment'),
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&h=200&q=80'
     },
     {
       id: 3,
-      name: 'Michael Chen',
-      role: 'Local Business Owner',
-      comment: 'The best retail store in Cabinda. Exceptional customer service.',
+      name: t('home.testimonial3.name'),
+      role: t('home.testimonial3.role'),
+      comment: t('home.testimonial3.comment'),
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&h=200&q=80'
     }
   ];
@@ -367,7 +522,7 @@ function Home() {
               aria-hidden={index !== currentSlide}
             >
               <div className="hero-content">
-                <h1 className="slide-title">{slide.title}</h1>
+                <h1 className={`slide-title ${slide.title === t('home.shop') ? 'afri-cabinda' : ''}`}>{slide.title}</h1>
                 <p className="slide-description">{slide.description}</p>
                 {slide.buttonLink.includes('category=') ? (
                   <button 
@@ -443,16 +598,39 @@ function Home() {
         </div>
       </section>
 
+      {/* Social Share Section */}
+      <section style={{ padding: '2rem 0', textAlign: 'center', background: 'linear-gradient(135deg, #f0fff4 0%, #fff 100%)' }}>
+        <h3 style={{ marginBottom: '1rem', color: '#333', fontSize: '1.5rem' }}>
+          {t('home.shareWithFriends')}
+        </h3>
+        <SocialShare 
+          title="AFRI-CABINDA - Premium Retail Shop"
+          description="Discover premium products at AFRI-CABINDA. Your trusted retail destination for quality goods, exceptional service, and unbeatable prices!"
+          showWhatsApp={true}
+          showFacebook={true}
+          showTwitter={true}
+          showLinkedIn={false}
+          showTelegram={false}
+        />
+      </section>
+
       {/* Announcements Section */}
       <section className="announcements">
         <div className="container">
-          <h2>Latest Updates</h2>
-          {loading ? (
+          <h2>{t('home.latestUpdates')}</h2>
+          {loading && (
             <div className="loading-overlay">
-              <LoadingSpinner size="large" color="primary" />
+              <LoadingSpinner 
+                size="large" 
+                color="primary" 
+                variant="circle"
+                text={t('home.loadingAnnouncements')}
+                showText={true}
+              />
             </div>
-          ) : announcements.length === 0 ? (
-            <div>No announcements available</div>
+          )}
+          {announcements.length === 0 ? (
+            <div>{t('home.noAnnouncements')}</div>
           ) : (
             <div className="announcements-grid">
               {announcements.map(announcement => (
@@ -473,17 +651,17 @@ function Home() {
                     />
                   )}
                   <div className="announcement-content">
-                    <span className="announcement-type">{announcement.category}</span>
+                    <span className="announcement-type">{getAnnouncementCategory(announcement.category)}</span>
                     <h3>
-                      {announcement.title.length > 70 
-                        ? `${announcement.title.substring(0, 70)}...` 
-                        : announcement.title}
+                      {getAnnouncementTitle(announcement).length > 70 
+                        ? `${getAnnouncementTitle(announcement).substring(0, 70)}...` 
+                        : getAnnouncementTitle(announcement)}
                     </h3>
                     <p>
-                      {announcement.content.length > 200 
-                        ? `${announcement.content.substring(0, 200)}... ` 
-                        : announcement.content}
-                      {announcement.content.length > 200 && (
+                      {getAnnouncementContent(announcement).length > 200 
+                        ? `${getAnnouncementContent(announcement).substring(0, 200)}... ` 
+                        : getAnnouncementContent(announcement)}
+                      {getAnnouncementContent(announcement).length > 200 && (
                         <Link 
                           to={`/announcement/${announcement._id}`} 
                           className="read-more"
@@ -491,7 +669,7 @@ function Home() {
                             window.sessionStorage.setItem('lastViewedAnnouncement', announcement._id);
                           }}
                         >
-                          Read More
+                          {t('home.readMore')}
                         </Link>
                       )}
                     </p>
@@ -509,62 +687,120 @@ function Home() {
 
       {/* Featured Categories */}
       <section className="featured-categories">
-        <h2>Featured Categories</h2>
-        <div className="categories-grid">
-          {categories.map((category, index) => (
-            <div key={index} className="category-card">
-              <img src={category.image} alt={category.name} />
-              <h3>{category.name}</h3>
-              <p className="category-description">{category.description}</p>
-              <button 
-                className="category-link"
-                onClick={(e) => handleCategoryClick(e, category.name.includes('&') ? encodeURIComponent(category.name) : category.name)}
+        <h2>{t('home.featuredCategories')}</h2>
+        <div className="categories-marquee">
+          <div className="categories-marquee-track">
+            {/* First set of categories */}
+            {allCategories.map((cat, idx) => (
+              <div 
+                key={cat + idx} 
+                className="category-marquee-item" 
+                onClick={(e) => handleCategoryClick(e, cat)}
+                style={{ cursor: 'pointer' }}
               >
-                View Products
-              </button>
-            </div>
-          ))}
+                {getTranslatedCategory(cat)}
+              </div>
+            ))}
+            {/* Duplicate set for seamless loop */}
+            {allCategories.map((cat, idx) => (
+              <div 
+                key={`${cat}-duplicate-${idx}`} 
+                className="category-marquee-item" 
+                onClick={(e) => handleCategoryClick(e, cat)}
+                style={{ cursor: 'pointer' }}
+              >
+                {getTranslatedCategory(cat)}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Best Sellers */}
       <section className="best-sellers">
-        <h2>Best Sellers</h2>
-        {loading ? (
+        <h2>{t('home.bestSellers')}</h2>
+        {loading && (
           <div className="loading-overlay">
-            <LoadingSpinner size="large" color="primary" />
+            <LoadingSpinner 
+              size="large" 
+              color="primary" 
+              variant="ring"
+              text={t('home.loadingBestSellers')}
+              showText={true}
+            />
           </div>
-        ) : bestSellers.length === 0 ? (
-          <div>No best sellers available</div>
+        )}
+        {bestSellers.length === 0 ? (
+          <div>{t('home.noBestSellers')}</div>
         ) : (
-          <div className="container">
-            <div className="products-grid">
-              {bestSellers.map(product => (
-                <div key={product._id} className="product-card">
-                  <img 
-                    src={product.imageUrl} 
-                    alt={product.name}
-                    onError={(e) => {
-                      console.error('Image failed to load:', {
-                        product: product.name,
-                        url: product.imageUrl
-                      });
-                      e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
-                    }}
-                  />
-                  <h3>{product.name}</h3>
-                  <p className="price">${product.price.toLocaleString()}</p>
-                  <a 
-                    href={`https://wa.me/244938992743?text=I'm interested in ${encodeURIComponent(product.name)} priced at $${product.price}`} 
-                    className="whatsapp-button"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FaWhatsapp /> Chat on WhatsApp
-                  </a>
-                </div>
-              ))}
+          <div className="best-sellers-swiper-wrapper">
+            <button 
+              className="swiper-arrow left"
+              onClick={() => setBestSellersIndex(i => (i - 1 + bestSellers.length) % bestSellers.length)}
+              aria-label="Previous"
+            >
+              <FaChevronLeft />
+            </button>
+            <div className="best-sellers-swiper">
+              {bestSellers.map((product, idx) => {
+                // Show 3 at a time (desktop), 2 (tablet), 1 (mobile)
+                let visibleCount = 3;
+                if (window.innerWidth <= 768) visibleCount = 2;
+                if (window.innerWidth <= 480) visibleCount = 1;
+                // Calculate if this product should be visible
+                let start = bestSellersIndex;
+                let end = (start + visibleCount) % bestSellers.length;
+                let isVisible = false;
+                if (end > start) {
+                  isVisible = idx >= start && idx < end;
+                } else {
+                  isVisible = idx >= start || idx < end;
+                }
+                return isVisible ? (
+                  <div key={product._id} className="product-card swiper-slide">
+                    <div className="product-image">
+                      <img 
+                        src={product.imageUrl} 
+                        alt={getProductName(product)}
+                        onError={(e) => {
+                          e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
+                        }}
+                      />
+                    </div>
+                    <div className="product-info">
+                      <div className="product-header">
+                        <h3>{getProductName(product)}</h3>
+                        <span className="category-tag">{getTranslatedCategory(product.category)}</span>
+                      </div>
+                      <div className="product-description">
+                        <div className="content">
+                          {getProductDescription(product).length > 100
+                            ? getProductDescription(product).slice(0, 100) + '...'
+                            : getProductDescription(product)}
+                        </div>
+                      </div>
+                      <div className="product-footer">
+                        <a 
+                          href={`https://wa.me/244922706107?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
+                          className="whatsapp-button"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaWhatsapp /> {t('common.buy')}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ) : null;
+              })}
             </div>
+            <button 
+              className="swiper-arrow right"
+              onClick={() => setBestSellersIndex(i => (i + 1) % bestSellers.length)}
+              aria-label="Next"
+            >
+              <FaChevronRight />
+            </button>
           </div>
         )}
       </section>
@@ -574,83 +810,179 @@ function Home() {
 
       {/* Why Choose Us */}
       <section className="why-choose-us">
-        <h2>Why Choose Us</h2>
+        <h2>{t('home.whyChooseUs')}</h2>
         <div className="features-grid">
           <div className="feature">
             <FaTruck className="feature-icon" />
-            <h3>Fast Delivery</h3>
-            <p>Delivery across Cabinda</p>
+            <h3>{t('home.fastDelivery')}</h3>
+            <p>{t('home.fastDeliveryDesc')}</p>
           </div>
           <div className="feature">
             <FaMoneyBillWave className="feature-icon" />
-            <h3>Best Prices</h3>
-            <p>Competitive prices guaranteed</p>
+            <h3>{t('home.bestPrices')}</h3>
+            <p>{t('home.bestPricesDesc')}</p>
           </div>
           <div className="feature">
             <FaHeadset className="feature-icon" />
-            <h3>24/7 Support</h3>
-            <p>Dedicated customer service</p>
+            <h3>{t('home.support')}</h3>
+            <p>{t('home.supportDesc')}</p>
           </div>
           <div className="feature">
             <FaShieldAlt className="feature-icon" />
-            <h3>Secure Shopping</h3>
-            <p>100% satisfaction guarantee</p>
+            <h3>{t('home.secureShopping')}</h3>
+            <p>{t('home.secureShoppingDesc')}</p>
           </div>
         </div>
       </section>
 
       {/* Latest Products */}
       <section className="latest-products">
-        <h2>Latest Products</h2>
-        {loading ? (
+        <h2>{t('home.latestProducts')}</h2>
+        {loading && (
           <div className="loading-overlay">
-            <LoadingSpinner size="large" color="primary" />
+            <LoadingSpinner 
+              size="large" 
+              color="primary" 
+              variant="circle"
+              text={t('home.loadingLatestProducts')}
+              showText={true}
+            />
           </div>
-        ) : latestProducts.length === 0 ? (
-          <div>No products available</div>
+        )}
+        {latestProducts.length === 0 ? (
+          <div>{t('home.noProducts')}</div>
         ) : (
-          <div className="products-grid">
-            {latestProducts.map(product => (
-              <div key={product._id} className="product-card">
-                <img 
-                  src={product.imageUrl} 
-                  alt={product.name}
-                  onError={(e) => {
-                    console.error('Image failed to load:', {
-                      product: product.name,
-                      url: product.imageUrl
-                    });
-                    e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
-                  }}
-                />
-                <h3>{product.name}</h3>
-                <p className="price">${product.price.toLocaleString()}</p>
-                <a 
-                  href={`https://wa.me/244938992743?text=I want to buy ${encodeURIComponent(product.name)} priced at $${product.price}`} 
-                  className="whatsapp-button buy-button"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaWhatsapp /> Buy on WhatsApp
-                </a>
-              </div>
-            ))}
+          <div className="latest-products-scroll-container">
+            <div className="latest-products-scroll-track">
+              {/* First set of products */}
+              {latestProducts.slice(0, 10).map(product => (
+                <div key={product._id} className="product-card">
+                  <div className="product-image">
+                    <img 
+                      src={product.imageUrl} 
+                      alt={getProductName(product)}
+                      onError={(e) => {
+                        console.error('Image failed to load:', {
+                          product: getProductName(product),
+                          url: product.imageUrl
+                        });
+                        e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
+                      }}
+                    />
+                  </div>
+                  <div className="product-info">
+                    <div className="product-header">
+                      <h3>{getProductName(product)}</h3>
+                      <span className="category-tag">{getTranslatedCategory(product.category)}</span>
+                    </div>
+                    <div className="product-description">
+                      <div className="content">
+                        {getProductDescription(product).length > 100
+                          ? getProductDescription(product).slice(0, 100) + '...'
+                          : getProductDescription(product)}
+                      </div>
+                    </div>
+                    <div className="product-footer">
+                      <a 
+                        href={`https://wa.me/244938992743?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
+                        className="whatsapp-button buy-button"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FaWhatsapp /> {t('common.buy')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {latestProducts.slice(0, 10).map(product => (
+                <div key={`${product._id}-duplicate`} className="product-card">
+                  <div className="product-image">
+                    <img 
+                      src={product.imageUrl} 
+                      alt={getProductName(product)}
+                      onError={(e) => {
+                        console.error('Image failed to load:', {
+                          product: getProductName(product),
+                          url: product.imageUrl
+                        });
+                        e.target.src = 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&h=400&q=80';
+                      }}
+                    />
+                  </div>
+                  <div className="product-info">
+                    <div className="product-header">
+                      <h3>{getProductName(product)}</h3>
+                      <span className="category-tag">{getTranslatedCategory(product.category)}</span>
+                    </div>
+                    <div className="product-description">
+                      <div className="content">
+                        {getProductDescription(product).length > 100
+                          ? getProductDescription(product).slice(0, 100) + '...'
+                          : getProductDescription(product)}
+                      </div>
+                    </div>
+                    <div className="product-footer">
+                      <a 
+                        href={`https://wa.me/244938992743?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
+                        className="whatsapp-button buy-button"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FaWhatsapp /> {t('common.buy')}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>
 
       {/* Testimonials */}
       <section className="testimonials">
-        <h2>What Our Customers Say</h2>
-        <div className="testimonials-grid">
-          {testimonials.map(testimonial => (
-            <div key={testimonial.id} className="testimonial-card">
-              <img src={testimonial.avatar} alt={testimonial.name} className="avatar" />
-              <p className="comment">{testimonial.comment}</p>
-              <h4>{testimonial.name}</h4>
-              <p className="role">{testimonial.role}</p>
-            </div>
-          ))}
+        <h2>{t('home.testimonials')}</h2>
+        <div className="testimonials-swiper-wrapper">
+          <button 
+            className="swiper-arrow left"
+            onClick={() => setTestimonialsIndex(i => (i - 1 + testimonials.length) % testimonials.length)}
+            aria-label="Previous"
+          >
+            <FaChevronLeft />
+          </button>
+          <div className="testimonials-swiper">
+            {testimonials.map((testimonial, idx) => {
+              // Show 2 at a time (desktop), 1 (mobile)
+              let visibleCount = 2;
+              if (window.innerWidth <= 768) visibleCount = 1;
+              // Calculate if this testimonial should be visible
+              let start = testimonialsIndex;
+              let end = (start + visibleCount) % testimonials.length;
+              let isVisible = false;
+              if (end > start) {
+                isVisible = idx >= start && idx < end;
+              } else {
+                isVisible = idx >= start || idx < end;
+              }
+              return isVisible ? (
+                <div key={testimonial.id} className="testimonial-card swiper-slide">
+                  <img src={testimonial.avatar} alt={testimonial.name} className="avatar" />
+                  <p className="comment">{testimonial.comment}</p>
+                  <h4>{testimonial.name}</h4>
+                  <p className="role">{testimonial.role}</p>
+                </div>
+              ) : null;
+            })}
+          </div>
+          <button 
+            className="swiper-arrow right"
+            onClick={() => setTestimonialsIndex(i => (i + 1) % testimonials.length)}
+            aria-label="Next"
+          >
+            <FaChevronRight />
+          </button>
         </div>
       </section>
 

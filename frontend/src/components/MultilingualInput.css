@@ -34,16 +34,29 @@
 }
 
 .input-group input.error {
-  border-color: #dc3545;
+  border-color: #25d366;
 }
 
 .required {
-  color: #dc3545;
+  color: #25d366;
   margin-left: 4px;
 }
 
 .error-message {
-  color: #dc3545;
+  color: #25d366;
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+.multilingual-input.error input {
+  border-color: #25d366;
+  box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+}
+
+.multilingual-input.error .error-message {
+  color: #25d366;
+}
+
+.multilingual-input.error .error-icon {
+  color: #25d366;
 } 
