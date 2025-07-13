@@ -224,48 +224,138 @@ router.post('/send', verifyToken, isAdmin, async (req, res) => {
     if (typeof finalSubject === 'object' && typeof finalMessage === 'object') {
       // Multilingual newsletter
       htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
-            <h2 style="color: white; margin: 0; text-align: center;">${finalSubject.pt}</h2>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+          <!-- Header with gradient -->
+          <div style="background: linear-gradient(135deg, #25d366 0%, #128c7e 50%, #075e54 100%); padding: 30px 20px; text-align: center; position: relative; overflow: hidden;">
+            <!-- Decorative elements -->
+            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%); animation: shimmer 3s ease-in-out infinite;"></div>
+            <div style="position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: 10px; left: 10px; width: 30px; height: 30px; background: rgba(255, 255, 255, 0.15); border-radius: 50%;"></div>
+            
+            <!-- Portuguese Title -->
+            <h2 style="color: white; margin: 0; text-align: center; font-size: 24px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 1;">${finalSubject.pt}</h2>
+            <div style="width: 60px; height: 3px; background: rgba(255, 255, 255, 0.8); margin: 15px auto 0; border-radius: 2px;"></div>
+            
+            <!-- English Title -->
+            <h3 style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; text-align: center; font-size: 18px; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); position: relative; z-index: 1;">${finalSubject.en}</h3>
           </div>
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
-            <div style="color: #666; line-height: 1.6;">
-              ${finalMessage.pt}
+          
+          <!-- Main content -->
+          <div style="background: white; padding: 30px 20px; position: relative;">
+            <!-- Portuguese Content -->
+            <div style="color: #4a5568; line-height: 1.8; font-size: 16px; margin-bottom: 25px; position: relative;">
+              <div style="position: absolute; top: -10px; left: 20px; font-size: 2rem; color: #25d366; opacity: 0.3;">"</div>
+              <div style="white-space: pre-wrap; word-wrap: break-word;">${finalMessage.pt}</div>
             </div>
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-            <div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-top: 20px;">
-              <h3 style="color: #1976d2; margin-top: 0;">English Version</h3>
-              <h4 style="color: #333; margin-bottom: 10px;">${finalSubject.en}</h4>
-              <div style="color: #666; line-height: 1.6;">
-                ${finalMessage.en}
+            
+            <!-- Divider with Angolan flag -->
+            <div style="margin: 30px 0; text-align: center;">
+              <div style="display: inline-block; width: 50px; height: 2px; background: linear-gradient(90deg, #25d366 0%, #128c7e 100%); border-radius: 1px;"></div>
+              <span style="margin: 0 15px; color: #25d366; font-weight: 600;">🇦🇴</span>
+              <div style="display: inline-block; width: 50px; height: 2px; background: linear-gradient(90deg, #128c7e 0%, #25d366 100%); border-radius: 1px;"></div>
+            </div>
+            
+            <!-- English Content -->
+            <div style="color: #4a5568; line-height: 1.8; font-size: 16px; margin-bottom: 25px; position: relative;">
+              <div style="position: absolute; top: -10px; left: 20px; font-size: 2rem; color: #25d366; opacity: 0.3;">"</div>
+              <div style="white-space: pre-wrap; word-wrap: break-word;">${finalMessage.en}</div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
+              <p style="color: #718096; font-size: 13px; margin: 0; line-height: 1.5;">
+                You received this email because you're subscribed to our newsletter.<br>
+                If you wish to unsubscribe, please visit our website.
+              </p>
+              <div style="margin-top: 15px;">
+                <div style="display: inline-block; width: 30px; height: 30px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); border-radius: 50%; margin: 0 5px;"></div>
+                <div style="display: inline-block; width: 20px; height: 20px; background: linear-gradient(135deg, #128c7e 0%, #075e54 100%); border-radius: 50%; margin: 0 5px;"></div>
+                <div style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(135deg, #075e54 0%, #25d366 100%); border-radius: 50%; margin: 0 5px;"></div>
+              </div>
+              <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                <p style="color: #718096; font-size: 12px; margin: 0; line-height: 1.4;">
+                  Powered by{' '}
+                  <a href="https://www.meronvault.com" target="_blank" style="color: #25d366; text-decoration: none; font-weight: 600; background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00, #FFD700); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: meroniShine 3s ease-in-out infinite;">MERONI</a>
+                </p>
               </div>
             </div>
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-            <p style="color: #999; font-size: 12px;">
-              You received this email because you're subscribed to our newsletter. 
-              If you wish to unsubscribe, please visit our website.
-            </p>
           </div>
         </div>
+        
+        <style>
+          @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+          }
+          
+          @keyframes meroniShine {
+            0%, 100% { 
+              background-position: 0% 50%; 
+            }
+            50% { 
+              background-position: 100% 50%; 
+            }
+          }
+        </style>
       `;
     } else {
       // Single language newsletter
       htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #4a90e2; padding: 20px; border-radius: 8px 8px 0 0;">
-            <h2 style="color: white; margin: 0; text-align: center;">${finalSubject}</h2>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+          <!-- Header with gradient -->
+          <div style="background: linear-gradient(135deg, #25d366 0%, #128c7e 50%, #075e54 100%); padding: 30px 20px; text-align: center; position: relative; overflow: hidden;">
+            <!-- Decorative elements -->
+            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%); animation: shimmer 3s ease-in-out infinite;"></div>
+            <div style="position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: 10px; left: 10px; width: 30px; height: 30px; background: rgba(255, 255, 255, 0.15); border-radius: 50%;"></div>
+            
+            <h2 style="color: white; margin: 0; text-align: center; font-size: 24px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 1;">${finalSubject}</h2>
+            <div style="width: 60px; height: 3px; background: rgba(255, 255, 255, 0.8); margin: 15px auto 0; border-radius: 2px;"></div>
           </div>
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px;">
-            <div style="color: #666; line-height: 1.6;">
-              ${finalMessage}
+          
+          <!-- Main content -->
+          <div style="background: white; padding: 30px 20px; position: relative;">
+            <div style="color: #4a5568; line-height: 1.8; font-size: 16px; margin-bottom: 25px; position: relative;">
+              <div style="position: absolute; top: -10px; left: 20px; font-size: 2rem; color: #25d366; opacity: 0.3;">"</div>
+              <div style="white-space: pre-wrap; word-wrap: break-word;">${finalMessage}</div>
             </div>
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;" />
-            <p style="color: #999; font-size: 12px;">
-              You received this email because you're subscribed to our newsletter. 
-              If you wish to unsubscribe, please visit our website.
-            </p>
+            
+            <!-- Footer -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
+              <p style="color: #718096; font-size: 13px; margin: 0; line-height: 1.5;">
+                You received this email because you're subscribed to our newsletter.<br>
+                If you wish to unsubscribe, please visit our website.
+              </p>
+              <div style="margin-top: 15px;">
+                <div style="display: inline-block; width: 30px; height: 30px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); border-radius: 50%; margin: 0 5px;"></div>
+                <div style="display: inline-block; width: 20px; height: 20px; background: linear-gradient(135deg, #128c7e 0%, #075e54 100%); border-radius: 50%; margin: 0 5px;"></div>
+                <div style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(135deg, #075e54 0%, #25d366 100%); border-radius: 50%; margin: 0 5px;"></div>
+              </div>
+              <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                <p style="color: #718096; font-size: 12px; margin: 0; line-height: 1.4;">
+                  Powered by{' '}
+                  <a href="https://www.meronvault.com" target="_blank" style="color: #25d366; text-decoration: none; font-weight: 600; background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00, #FFD700); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: meroniShine 3s ease-in-out infinite;">MERONI</a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+        
+        <style>
+          @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+          }
+          
+          @keyframes meroniShine {
+            0%, 100% { 
+              background-position: 0% 50%; 
+            }
+            50% { 
+              background-position: 100% 50%; 
+            }
+          }
+        </style>
       `;
     }
 

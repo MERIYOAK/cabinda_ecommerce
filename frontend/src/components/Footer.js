@@ -4,6 +4,12 @@ import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 import './Footer.css';
 import { useTranslation } from 'react-i18next';
 
+// Environment variables for social media and company links
+const FACEBOOK_URL = process.env.REACT_APP_FACEBOOK_URL || 'https://facebook.com';
+const INSTAGRAM_URL = process.env.REACT_APP_INSTAGRAM_URL || 'https://instagram.com';
+const TWITTER_URL = process.env.REACT_APP_TWITTER_URL || 'https://twitter.com';
+const MERONI_URL = process.env.REACT_APP_MERONI_URL || 'https://www.meronvault.com';
+
 function Footer() {
   const { t } = useTranslation();
 
@@ -15,13 +21,13 @@ function Footer() {
             <h3>{t('footer.aboutTitle')}</h3>
             <p>{t('footer.aboutDescription')}</p>
             <div className="social-links">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" className="social-link">
                 <FaFacebook />
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="social-link">
                 <FaInstagram />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="social-link">
                 <FaTwitter />
               </a>
             </div>
@@ -43,8 +49,9 @@ function Footer() {
           <p style={{ textAlign: 'center', width: '100%', margin: 0 }}>
             &copy; {new Date().getFullYear()} {t('footer.copyright')}
             <span style={{ marginLeft: '8px' }}>
-              <a href="https://meronvault.com" target="_blank" rel="noopener noreferrer">
-                <span className="meroni-glow">Meroni</span>
+              Powered by{' '}
+              <a href={MERONI_URL} target="_blank" rel="noopener noreferrer">
+                <span className="meroni-glow">MERONI</span>
               </a>
             </span>
           </p>

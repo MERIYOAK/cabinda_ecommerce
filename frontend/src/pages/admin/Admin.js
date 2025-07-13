@@ -1380,7 +1380,7 @@ const Admin = () => {
                     <h4>🇵🇹 Português</h4>
                   </div>
                   <h2>{newsletterForm.subject_pt || t('admin.newsletterSubject')}</h2>
-                  <div className="preview-content">
+                  <div className="preview-content" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                     {newsletterForm.message_pt || t('admin.newsletterContentPlaceholder')}
                   </div>
                 </div>
@@ -1391,7 +1391,7 @@ const Admin = () => {
                     <h4>🇺🇸 English</h4>
                   </div>
                   <h2>{newsletterForm.subject_en || t('admin.newsletterSubject')}</h2>
-                  <div className="preview-content">
+                  <div className="preview-content" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                     {newsletterForm.message_en || t('admin.newsletterContentPlaceholder')}
                   </div>
                 </div>

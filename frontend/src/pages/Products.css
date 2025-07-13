@@ -551,7 +551,7 @@
   margin-left: auto;
   margin-right: 0;
   white-space: nowrap;
-  min-width: 80px;
+  min-width: 120px;
 }
 
 .products-page-whatsapp-buy-btn::before {
@@ -582,6 +582,10 @@
 .products-page-whatsapp-buy-btn svg {
   font-size: 1.1rem;
   transition: transform 0.3s ease;
+  flex-shrink: 0;
+  color: white;
+  display: inline-block;
+  opacity: 1;
 }
 
 .products-page-whatsapp-buy-btn:hover svg {
@@ -679,13 +683,22 @@
     font-size: 0.9rem;
     margin-left: auto;
     margin-right: 0;
-    min-width: 70px;
+    min-width: 100px;
+  }
+
+  .products-page-whatsapp-buy-btn svg {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: white;
+    display: inline-block;
+    opacity: 1;
   }
 }
 
 @media (max-width: 480px) {
   .products-page-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
     overflow: visible;
     height: auto;
   }
@@ -709,9 +722,16 @@
     margin-right: 0;
   }
 
+  .products-page-whatsapp-buy-btn svg {
+    font-size: 1rem !important;
+    color: white !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+  }
+
   .products-page-product-card {
-    min-width: 100%;
-    min-height: 320px;
+    min-width: 0;
+    min-height: 200px;
   }
 }
 

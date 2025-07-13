@@ -510,7 +510,7 @@ function OfferManager() {
                       <td>
                         <button
                           onClick={() => handleEdit(offer)}
-                          className="btn btn-icon"
+                          className="btn btn-icon edit"
                           title="Edit"
                         >
                           <FaEdit />

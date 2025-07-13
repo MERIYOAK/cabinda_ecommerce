@@ -336,12 +336,20 @@ th {
   color: #0056b3;
 }
 
+.btn-icon.edit {
+  color: #ffc107;
+}
+
+.btn-icon.edit:hover {
+  color: #e0a800;
+}
+
 .btn-icon.delete {
-  color: #25d366;
+  color: #dc3545;
 }
 
 .btn-icon.delete:hover {
-  color: #128c7e;
+  color: #c82333;
 }
 
 .status {

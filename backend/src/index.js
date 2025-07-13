@@ -39,6 +39,7 @@ const adminAuthRoutes = require('./routes/adminAuth');
 const newsletterRoutes = require('./routes/newsletter');
 const offerRoutes = require('./routes/offers');
 const uploadRoutes = require('./routes/upload');
+const contactRoutes = require('./routes/contact');
 const { verifyToken, isAdmin } = require('./middleware/authMiddleware');
 
 const PORT = process.env.PORT || 5000;
@@ -74,6 +75,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Protected routes
 app.use('/api/upload', verifyToken, isAdmin, uploadRoutes);

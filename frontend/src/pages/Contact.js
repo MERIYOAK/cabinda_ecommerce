@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
+import axios from 'axios';
+import API_URL from '../config/api';
 import './Contact.css';
 import { useTranslation } from 'react-i18next';
+
+// Environment variables for contact information
+const CONTACT_ADDRESS = process.env.REACT_APP_CONTACT_ADDRESS || '123 Main Street, AFRI-CABINDA, Angola';
+const CONTACT_PHONE = process.env.REACT_APP_CONTACT_PHONE || '+123 456 789';
+const CONTACT_WHATSAPP = process.env.REACT_APP_WHATSAPP_NUMBER || '123456789';
+const CONTACT_EMAIL = process.env.REACT_APP_CONTACT_EMAIL || 'info@retailshop.com';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -33,19 +41,25 @@ const Contact = () => {
     setStatus({ type: 'info', message: t('contact.sending') });
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Form submitted:', formData);
+      // Send contact form data to backend
+      const response = await axios.post(`${API_URL}/api/contact`, {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      });
+
+      console.log('Contact form submitted successfully:', response.data);
       setStatus({
         type: 'success',
         message: t('contact.success')
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
+      console.error('Contact form error:', error);
       setStatus({
         type: 'error',
-        message: t('contact.error')
+        message: error.response?.data?.message || t('contact.error')
       });
     } finally {
       setIsSubmitting(false);
@@ -72,7 +86,7 @@ const Contact = () => {
                 </div>
                 <div className="info-details">
                   <h3>{t('contact.visitUs')}</h3>
-                  <p>123 Main Street<br />AFRI-CABINDA, Angola</p>
+                  <p>{CONTACT_ADDRESS}</p>
                 </div>
               </div>
 
@@ -82,8 +96,8 @@ const Contact = () => {
                 </div>
                 <div className="info-details">
                   <h3>WhatsApp</h3>
-                  <p>+123 456 789</p>
-                  <a href="https://wa.me/123456789" className="contact-link" target="_blank" rel="noopener noreferrer">
+                  <p>{CONTACT_PHONE}</p>
+                  <a href={`https://wa.me/${CONTACT_WHATSAPP}`} className="contact-link" target="_blank" rel="noopener noreferrer">
                     {t('contact.messageWhatsapp')}
                   </a>
                 </div>
@@ -95,8 +109,8 @@ const Contact = () => {
                 </div>
                 <div className="info-details">
                   <h3>{t('contact.emailUs')}</h3>
-                  <p>info@retailshop.com</p>
-                  <a href="mailto:info@retailshop.com" className="contact-link">
+                  <p>{CONTACT_EMAIL}</p>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="contact-link">
                     {t('contact.sendEmail')}
                   </a>
                 </div>

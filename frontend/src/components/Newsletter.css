@@ -222,27 +222,27 @@
   }
 
   .newsletter-content h2 {
-    font-size: 1.5rem;
+    font-size: 2rem !important;
   }
 
   .newsletter-content p {
-    font-size: 0.9rem;
+    font-size: 1.1rem !important;
     margin-bottom: 20px;
   }
 
   .input-wrapper input {
     padding: 10px 35px;
-    font-size: 0.9rem;
+    font-size: 1rem !important;
   }
 
   .input-group button {
     padding: 10px 20px;
-    font-size: 0.9rem;
+    font-size: 1rem !important;
   }
 
   .message {
     padding: 10px 15px;
-    font-size: 0.9rem;
+    font-size: 1rem !important;
   }
 }
 
