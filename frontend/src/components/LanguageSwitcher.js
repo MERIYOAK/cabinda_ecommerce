@@ -147,7 +147,7 @@ const LanguageSwitcher = () => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

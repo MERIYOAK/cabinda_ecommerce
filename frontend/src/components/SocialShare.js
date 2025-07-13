@@ -1,12 +1,13 @@
 import React from 'react';
 import { FaFacebook, FaTwitter, FaWhatsapp, FaLinkedin, FaTelegram, FaShare } from 'react-icons/fa';
 import './SocialShare.css';
+import shopLogo from '../images/shop-logo.jpg';
 
 const SocialShare = ({ 
   url = window.location.href, 
   title = "AFRI-CABINDA - Premium Retail Shop", 
   description = "Discover premium products at AFRI-CABINDA. Your trusted retail destination for quality goods, exceptional service, and unbeatable prices!",
-  image = "/shop-logo.jpg",
+  image = shopLogo,
   showWhatsApp = true,
   showFacebook = true,
   showTwitter = true,
@@ -15,18 +16,31 @@ const SocialShare = ({
   className = ""
 }) => {
   
+  // Get the full URL for the shop logo image
+  const getImageUrl = () => {
+    if (typeof image === 'string' && image.startsWith('http')) {
+      return image;
+    }
+    // For local images, construct the full URL
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/src/images/shop-logo.jpg`;
+  };
+
+  const imageUrl = getImageUrl();
+  
   const shareData = {
     title: title,
     text: description,
-    url: url
+    url: url,
+    image: imageUrl
   };
 
   const shareUrls = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&hashtags=AFRICABINDA,Retail,Quality`,
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} - ${description} ${url}`)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}&picture=${encodeURIComponent(imageUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&hashtags=AFRICABINDA,Retail,Quality&image=${encodeURIComponent(imageUrl)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} - ${description} ${url}`)}&image=${encodeURIComponent(imageUrl)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&image=${encodeURIComponent(imageUrl)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&image=${encodeURIComponent(imageUrl)}`
   };
 
   const handleShare = async (platform) => {
