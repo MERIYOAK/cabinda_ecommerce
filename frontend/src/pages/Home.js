@@ -781,7 +781,7 @@ function Home() {
                       </div>
                       <div className="product-footer">
                         <a 
-                          href={`https://wa.me/244922706107?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
+                          href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
                           className="whatsapp-button"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -884,8 +884,8 @@ function Home() {
                     </div>
                     <div className="product-footer">
                       <a 
-                        href={`https://wa.me/244938992743?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
-                        className="whatsapp-button buy-button"
+                        href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
+                        className="whatsapp-button"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -925,7 +925,7 @@ function Home() {
                     </div>
                     <div className="product-footer">
                       <a 
-                        href={`https://wa.me/244938992743?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
+                        href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
                         className="whatsapp-button buy-button"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -992,4 +992,4 @@ function Home() {
   );
 }
 
-export default Home; 
+export default Home;

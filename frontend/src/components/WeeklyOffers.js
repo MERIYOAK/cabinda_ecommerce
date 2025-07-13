@@ -58,10 +58,32 @@ function WeeklyOffers() {
       setLoading(true);
       const response = await axios.get(`${API_URL}/api/offers/public/active`);
       console.log('Fetched active offers:', response.data);
-      setOffers(response.data);
+      
+      // Check if response.data is an array (valid JSON) or HTML (error)
+      if (Array.isArray(response.data)) {
+        setOffers(response.data);
+      } else if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
+        // API returned HTML instead of JSON (likely an error page)
+        console.error('API returned HTML instead of JSON. This usually means the backend is not deployed or not accessible.');
+        setError('Unable to load offers. Please try again later.');
+        setOffers([]);
+      } else {
+        // Handle other unexpected response types
+        console.error('Unexpected response format:', response.data);
+        setError('Unable to load offers. Please try again later.');
+        setOffers([]);
+      }
     } catch (error) {
       console.error('Error fetching active offers:', error);
-      setError('Failed to load offers');
+      
+      // If API is not available, show a user-friendly message
+      if (error.code === 'ERR_NETWORK' || error.response?.status === 404) {
+        setError('Offers are currently unavailable. Please check back later.');
+      } else {
+        setError('Failed to load offers. Please check your connection and try again.');
+      }
+      
+      setOffers([]); // Ensure offers is always an array
     } finally {
       setLoading(false);
     }
@@ -79,7 +101,7 @@ function WeeklyOffers() {
     return (originalPrice - discount).toFixed(2);
   };
 
-  const WHATSAPP_NUMBER = '244922706107'; // Update to your business number
+  const WHATSAPP_NUMBER = process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'; // Get from environment variable or use default
   const getWhatsAppMessage = (offer, products) => {
     let message = `${t('weeklyOffers.whatsappGreeting')} ${getOfferTitle(offer)}\n`;
     message += `${t('weeklyOffers.whatsappDetails')}: ${getOfferDescription(offer)}\n`;

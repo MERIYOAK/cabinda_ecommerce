@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { FaWhatsapp, FaPhone, FaPlus } from 'react-icons/fa';
 import './WhatsAppFloatingButton.css';
 
-const WHATSAPP_NUMBER = '244922706107';
-const MESSAGE = encodeURIComponent("Hello! I'm interested in your products/offers.");
-const PHONE_NUMBER = '+244922706107';
+const WHATSAPP_NUMBER = process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107';
+const WHATSAPP_MESSAGE = 'Hello! I would like to know more about your products.';
+const PHONE_NUMBER = `+${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}`;
 
 const WhatsAppFloatingButton = () => {
   const [open, setOpen] = useState(false);
@@ -22,7 +22,7 @@ const WhatsAppFloatingButton = () => {
             <FaPhone />
           </a>
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${MESSAGE}`}
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`}
             target="_blank"
             rel="noopener noreferrer"
             className="fab-action fab-action-whatsapp"

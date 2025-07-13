@@ -8,7 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useTranslation } from 'react-i18next';
 
 // Memoized ProductCard component to prevent unnecessary re-renders
-const WHATSAPP_NUMBER = '244922706107'; // Updated WhatsApp number for client requests
+const WHATSAPP_NUMBER = process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'; // Get from environment variable or use default
 const MAX_DESCRIPTION_LENGTH = 'Natural fruit juice made from fresh tropical fruits. No added sugars.'.length;
 
 const ProductCard = memo(({ product }) => {
