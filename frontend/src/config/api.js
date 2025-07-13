@@ -6,11 +6,18 @@ const getApiUrl = () => {
   }
   
   // Production environment
-  // If you have a deployed backend, replace this with your backend URL
-  const productionUrl = process.env.REACT_APP_API_URL || 'https://your-backend-url.vercel.app';
+  const productionUrl = process.env.REACT_APP_API_URL;
   
-  // Log the API URL for debugging (remove in production)
-  console.log('API URL:', productionUrl);
+  // Log the API URL for debugging
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+  console.log('Final API URL:', productionUrl);
+  
+  if (!productionUrl) {
+    console.error('❌ REACT_APP_API_URL is not set in production!');
+    console.error('Please set the environment variable in your Vercel dashboard.');
+    return 'https://your-backend-render-url.onrender.com'; // Fallback
+  }
   
   return productionUrl;
 };
@@ -18,8 +25,10 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 // Validate API URL
-if (!API_URL) {
-  console.error('API_URL is not configured. Please set REACT_APP_API_URL environment variable.');
+if (!API_URL || API_URL.includes('your-backend-url') || API_URL.includes('your-backend-render-url')) {
+  console.error('❌ API_URL is not configured properly!');
+  console.error('Current API_URL:', API_URL);
+  console.error('Please set REACT_APP_API_URL environment variable with your actual backend URL.');
 }
 
 export default API_URL; 
