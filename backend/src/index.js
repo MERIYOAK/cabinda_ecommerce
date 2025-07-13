@@ -68,14 +68,28 @@ app.use(cors({
 // Add CORS debugging middleware
 app.use((req, res, next) => {
   console.log('=== REQUEST DEBUG ===');
-  console.log('Request Origin:', req.headers.origin);
+  console.log('Request Origin:', req.headers.origin || 'No origin (direct request)');
   console.log('Request Method:', req.method);
   console.log('Request URL:', req.url);
+  console.log('Request Path:', req.path);
   console.log('Request Headers:', {
     'user-agent': req.headers['user-agent'],
     'accept': req.headers.accept,
-    'content-type': req.headers['content-type']
+    'content-type': req.headers['content-type'],
+    'referer': req.headers.referer,
+    'host': req.headers.host
   });
+  
+  // Log if this is a health check
+  if (req.headers['user-agent'] && req.headers['user-agent'].includes('Go-http-client')) {
+    console.log('🔍 This appears to be a health check request');
+  }
+  
+  // Log if this is a browser request
+  if (req.headers.origin) {
+    console.log('🌐 This is a browser request from:', req.headers.origin);
+  }
+  
   next();
 });
 app.use(express.json());
@@ -84,6 +98,17 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 console.log('Setting up routes...');
+
+// Root route for health checks
+app.get('/', (req, res) => {
+  console.log('🏥 Health check request received');
+  res.json({ 
+    message: 'Cabinda Retail Shop Backend is running',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    corsConfigured: !!process.env.FRONTEND_URL
+  });
+});
 
 // Public routes
 app.use('/api/admin', adminAuthRoutes);
