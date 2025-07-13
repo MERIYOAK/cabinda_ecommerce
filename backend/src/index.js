@@ -39,7 +39,6 @@ const adminAuthRoutes = require('./routes/adminAuth');
 const newsletterRoutes = require('./routes/newsletter');
 const offerRoutes = require('./routes/offers');
 const uploadRoutes = require('./routes/upload');
-const contactRoutes = require('./routes/contact');
 const { verifyToken, isAdmin } = require('./middleware/authMiddleware');
 
 const PORT = process.env.PORT || 5000;
@@ -54,28 +53,31 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://cabinda-ecommerce.vercel.app',
-  process.env.FRONTEND_URL
-].filter(Boolean); // Remove any undefined values
+console.log('=== CORS CONFIGURATION DEBUG ===');
+console.log('FRONTEND_URL from env:', process.env.FRONTEND_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Final CORS origin:', process.env.FRONTEND_URL || 'http://localhost:3000');
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
+
+// Add CORS debugging middleware
+app.use((req, res, next) => {
+  console.log('=== REQUEST DEBUG ===');
+  console.log('Request Origin:', req.headers.origin);
+  console.log('Request Method:', req.method);
+  console.log('Request URL:', req.url);
+  console.log('Request Headers:', {
+    'user-agent': req.headers['user-agent'],
+    'accept': req.headers.accept,
+    'content-type': req.headers['content-type']
+  });
+  next();
+});
 app.use(express.json());
 
 // Serve static files
@@ -91,7 +93,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/contact', contactRoutes);
 
 // Protected routes
 app.use('/api/upload', verifyToken, isAdmin, uploadRoutes);
@@ -99,6 +100,21 @@ app.use('/api/upload', verifyToken, isAdmin, uploadRoutes);
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
+});
+
+// CORS test route for debugging
+app.get('/api/cors-test', (req, res) => {
+  console.log('=== CORS TEST ROUTE CALLED ===');
+  console.log('Request Origin:', req.headers.origin);
+  console.log('Expected Origin:', process.env.FRONTEND_URL);
+  
+  res.json({ 
+    message: 'CORS test successful',
+    requestOrigin: req.headers.origin,
+    expectedOrigin: process.env.FRONTEND_URL,
+    corsConfigured: !!process.env.FRONTEND_URL,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware

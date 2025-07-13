@@ -16,7 +16,9 @@ const getApiUrl = () => {
   if (!productionUrl) {
     console.error('❌ REACT_APP_API_URL is not set in production!');
     console.error('Please set the environment variable in your Vercel dashboard.');
-    return 'https://your-backend-render-url.onrender.com'; // Fallback
+    console.error('For now, using fallback URL. Please update with your actual Render backend URL.');
+    // TEMPORARY: Replace this with your actual Render backend URL
+    return 'https://your-render-backend-url.onrender.com'; // Replace with your actual URL
   }
   
   return productionUrl;
