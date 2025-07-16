@@ -1629,13 +1629,13 @@ h2::after {
   justify-content: center;
   min-width: 180px;
   height: 60px;
-  background: linear-gradient(90deg, #25d366 60%, #128c7e 100%);
+  background: linear-gradient(90deg, #dc2626 60%, #b91c1c 100%);
   border-radius: 30px;
   margin: 0 8px;
   font-size: 1.1rem;
   font-weight: 600;
   color: white;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(.21,1.02,.73,1);
   padding: 0 32px;
@@ -1647,11 +1647,11 @@ h2::after {
 }
 
 .category-marquee-item:hover, .category-marquee-item:focus {
-  background: linear-gradient(90deg, #128c7e 60%, #075e54 100%);
+  background: linear-gradient(90deg, #b91c1c 60%, #991b1b 100%);
   color: white;
-  border-color: #9ae6b4;
+  border-color: #fca5a5;
   transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.25);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.25);
   z-index: 2;
 }
 

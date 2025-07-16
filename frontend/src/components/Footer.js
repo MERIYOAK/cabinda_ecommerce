@@ -49,7 +49,6 @@ function Footer() {
           <p style={{ textAlign: 'center', width: '100%', margin: 0 }}>
             &copy; {new Date().getFullYear()} {t('footer.copyright')}
             <span style={{ marginLeft: '8px' }}>
-              Powered by{' '}
               <a href={MERONI_URL} target="_blank" rel="noopener noreferrer">
                 <span className="meroni-glow">MERONI</span>
               </a>
