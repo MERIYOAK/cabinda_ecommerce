@@ -23,6 +23,14 @@ function OfferManager() {
   });
   const [loading, setLoading] = useState(true);
 
+  // Add a timeout to hide loading overlay after 5 seconds (safeguard)
+  useEffect(() => {
+    if (loading) {
+      const timeout = setTimeout(() => setLoading(false), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [loading]);
+
   // Helper function to safely get product name
   const getProductName = (product) => {
     if (typeof product.name === 'string') {
@@ -211,9 +219,18 @@ function OfferManager() {
     setSelectedOffer(null);
   };
 
+  const handleImageChange = (e) => {
+    console.log('File input changed', e.target.files);
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const renderProductOption = (product) => (
     <option key={product._id} value={product._id}>
-      {getProductName(product)} - ${product.price.toFixed(2)}
+      {getProductName(product)} - Kz{product.price.toFixed(2)}
     </option>
   );
 
@@ -238,9 +255,9 @@ function OfferManager() {
               <div className="product-info">
                 <h5>{getProductName(product)}</h5>
                 <div className="price-info">
-                  <span className="original-price">${product.price.toFixed(2)}</span>
+                  <span className="original-price">Kz{product.price.toFixed(2)}</span>
                   <span className="sale-price">
-                    ${(product.price * (1 - offerForm.discountPercentage / 100)).toFixed(2)}
+                    Kz{(product.price * (1 - offerForm.discountPercentage / 100)).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -393,15 +410,7 @@ function OfferManager() {
               <input
                 type="file"
                 id="bannerImage"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setSelectedImage(file);
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => setImagePreview(e.target.result);
-                    reader.readAsDataURL(file);
-                  }
-                }}
+                onChange={handleImageChange}
                 accept="image/*"
                 className="form-control"
                 required={!isEditing}

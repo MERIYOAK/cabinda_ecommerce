@@ -915,21 +915,16 @@ const Admin = () => {
                       <option value="Beef">{t('products.beef')}</option>
                     </select>
                   </div>
+                  {/* --- Product Image Upload Section --- */}
                   <div className="form-group">
                     <label htmlFor="imageUrl">{t('productForm.image')}</label>
-                    <div className="image-upload-section">
-                      <input
-                        type="file"
-                        id="imageUrl"
-                        accept="image/*"
-                        onChange={handleProductImageChange}
-                        className="file-input"
-                      />
-                      <div className="image-upload-content">
-                        <FaImage className="image-upload-icon" />
-                        <p>{t('productForm.image')}</p>
-                      </div>
-                    </div>
+                    <input
+                      type="file"
+                      id="imageUrl"
+                      accept="image/*"
+                      onChange={handleProductImageChange}
+                      className="form-group-input"
+                    />
                     {productImagePreview && (
                       <div className="image-preview">
                         <img src={productImagePreview} alt={t('productForm.imagePreviewAlt')} />
@@ -1175,25 +1170,19 @@ const Admin = () => {
                       </div>
                     )}
                   </div>
+                  {/* --- Offer Image Upload Section --- */}
                   <div className="form-group">
-                    <label htmlFor="bannerImage">{t('admin.bannerImage')}</label>
-                    <div className="image-upload-section">
-                      <input
-                        type="file"
-                        id="bannerImage"
-                        accept="image/*"
-                        onChange={handleOfferImageChange}
-                        className="file-input"
-                        required={!offerForm.id}
-                      />
-                      <div className="image-upload-content">
-                        <FaImage className="image-upload-icon" />
-                        <p>{t('admin.clickToUploadBanner')}</p>
-                      </div>
-                    </div>
+                    <label htmlFor="bannerImage">{t('admin.offerBannerImage')}</label>
+                    <input
+                      type="file"
+                      id="bannerImage"
+                      accept="image/*"
+                      onChange={handleOfferImageChange}
+                      className="form-group-input"
+                    />
                     {offerForm.bannerImagePreview && (
                       <div className="image-preview">
-                        <img src={offerForm.bannerImagePreview} alt="Banner preview" />
+                        <img src={offerForm.bannerImagePreview} alt={t('admin.offerBannerImagePreviewAlt')} />
                       </div>
                     )}
                   </div>

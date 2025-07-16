@@ -116,7 +116,7 @@
 .input-group button {
   width: 100%;
   padding: 12px 25px;
-  background: #25d366;
+  background: linear-gradient(90deg, #e41e31 60%, #b71c1c 100%) !important;
   color: white;
   border: none;
   border-radius: 25px;

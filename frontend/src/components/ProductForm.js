@@ -16,10 +16,19 @@ const ProductForm = () => {
     description_en: '',
     price: '',
     category: '',
-    imageUrl: ''
+    image: null,
+    imagePreview: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Add a timeout to hide loading overlay after 5 seconds (safeguard)
+  useEffect(() => {
+    if (loading) {
+      const timeout = setTimeout(() => setLoading(false), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (id) {
@@ -38,7 +47,12 @@ const ProductForm = () => {
         description_en: response.data.description_en || '',
         price: response.data.price || '',
         category: response.data.category || '',
-        imageUrl: response.data.imageUrl || ''
+        image: response.data.imageUrl ? {
+          name: response.data.imageUrl.split('/').pop(), // Extract filename
+          size: 0, // No size for URL
+          type: 'image/jpeg' // Assuming JPEG for URL
+        } : null,
+        imagePreview: response.data.imageUrl || ''
       });
     } catch (err) {
       setError(err.message);
@@ -63,8 +77,8 @@ const ProductForm = () => {
       submitData.append('description_en', formData.description_en);
       submitData.append('price', formData.price);
       submitData.append('category', formData.category);
-      if (formData.imageFile) {
-        submitData.append('image', formData.imageFile);
+      if (formData.image) {
+        submitData.append('image', formData.image);
       }
       if (id) {
         await axios.put(`/api/products/${id}`, submitData, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -80,17 +94,21 @@ const ProductForm = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'imageUrl' && files && files[0]) {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    console.log('File input changed', e.target.files);
+    const file = e.target.files[0];
+    if (file) {
       setFormData(prev => ({
         ...prev,
-        imageFile: files[0],
-        imageUrl: URL.createObjectURL(files[0])
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
+        image: file,
+        imagePreview: URL.createObjectURL(file)
       }));
     }
   };
@@ -166,17 +184,17 @@ const ProductForm = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="imageUrl">{t('productForm.image')}</label>
+          <label htmlFor="image">{t('productForm.image')}</label>
           <input
             type="file"
-            id="imageUrl"
-            name="imageUrl"
+            id="image"
+            name="image"
             accept="image/*"
-            onChange={handleChange}
+            onChange={handleImageChange}
           />
-          {formData.imageUrl && (
+          {formData.imagePreview && (
             <div className="image-preview">
-              <img src={formData.imageUrl} alt={t('productForm.imagePreviewAlt')} />
+              <img src={formData.imagePreview} alt={t('productForm.imagePreviewAlt')} />
             </div>
           )}
         </div>

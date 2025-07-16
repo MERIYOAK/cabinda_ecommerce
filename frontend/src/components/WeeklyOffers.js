@@ -190,10 +190,10 @@ function WeeklyOffers() {
                                 <h5>{getProductName(product) || t('weeklyOffers.unnamedProduct')}</h5>
                                 <div className="product-price">
                                   <span className="original-price">
-                                    ${formatPrice(product.price)}
+                                    Kz{formatPrice(product.price)}
                                   </span>
                                   <span className="sale-price">
-                                    ${calculateSalePrice(product.price, offer.discountPercentage)}
+                                    Kz{calculateSalePrice(product.price, offer.discountPercentage)}
                                   </span>
                                 </div>
                               </div>
@@ -210,7 +210,7 @@ function WeeklyOffers() {
                       href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(getWhatsAppMessage(offer, validProducts))}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="whatsapp-offer-btn"
+                      className="whatsapp-offer-btn buy-red-btn"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',

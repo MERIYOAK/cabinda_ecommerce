@@ -299,13 +299,13 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  background: linear-gradient(90deg, #25d366 60%, #128c7e 100%);
+  background: linear-gradient(90deg, #e41e31 60%, #b71c1c 100%) !important ;
   color: white;
   padding: 12px 28px;
   border-radius: 30px;
   font-weight: bold;
   font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.12);
+  box-shadow: 0 2px 8px rgba(228, 30, 49, 0.12);
   letter-spacing: 0.03em;
   z-index: 2;
   border: 2px solid #fff;
@@ -409,7 +409,7 @@
 }
 
 .sale-price {
-  color: #25d366;
+  color: #e41e31;
   font-weight: bold;
   font-size: 0.95rem;
 }
@@ -442,31 +442,27 @@
 }
 
 .whatsapp-offer-btn {
+  background: linear-gradient(90deg, #e41e31 60%, #b71c1c 100%) !important;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(228, 30, 49, 0.10);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
+  gap: 0.5em;
   margin-top: 18px;
-  background: linear-gradient(90deg, #25d366 60%, #128c7e 100%);
-  color: #fff;
-  padding: 0.75em 2em;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1.08rem;
+  padding: 0.7em 1.5em;
+  font-size: 1.05rem;
   text-decoration: none;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.13), 0 1.5px 4px rgba(18,140,126,0.10);
-  border: none;
-  cursor: pointer;
-  transition: background 0.25s, box-shadow 0.25s, transform 0.18s;
-  position: relative;
-  z-index: 1;
 }
 
 .whatsapp-offer-btn:hover, .whatsapp-offer-btn:focus {
-  background: linear-gradient(90deg, #128c7e 60%, #075e54 100%);
+  background: linear-gradient(90deg, #b71c1c 60%, #e41e31 100%);
   color: #fff;
-  box-shadow: 0 8px 28px rgba(18,140,126,0.18), 0 2px 8px rgba(37,211,102,0.15);
-  transform: translateY(-3px) scale(1.04);
-  text-decoration: none;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(228, 30, 49, 0.18);
 }
 
 .whatsapp-offer-btn svg {

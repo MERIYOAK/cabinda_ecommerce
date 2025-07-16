@@ -527,7 +527,7 @@ function Home() {
                 {slide.buttonLink.includes('category=') ? (
                   <button 
                     onClick={(e) => handleCategoryClick(e, slide.buttonLink.split('category=')[1])}
-                    className="cta-button"
+                    className="cta-button buy-red-btn"
                   >
                     {slide.buttonText}
                     <span className="button-arrow">→</span>
@@ -535,7 +535,7 @@ function Home() {
                 ) : (
                   <Link 
                     to={slide.buttonLink} 
-                    className="cta-button"
+                    className="cta-button buy-red-btn"
                   >
                     {slide.buttonText}
                     <span className="button-arrow">→</span>
@@ -782,7 +782,7 @@ function Home() {
                       <div className="product-footer">
                         <a 
                           href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
-                          className="whatsapp-button"
+                          className="whatsapp-button buy-red-btn"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -885,7 +885,7 @@ function Home() {
                     <div className="product-footer">
                       <a 
                         href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I'm interested in ${encodeURIComponent(getProductName(product))}`} 
-                        className="whatsapp-button"
+                        className="whatsapp-button buy-red-btn"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -926,7 +926,7 @@ function Home() {
                     <div className="product-footer">
                       <a 
                         href={`https://wa.me/${process.env.REACT_APP_WHATSAPP_NUMBER || '244922706107'}?text=I want to buy ${encodeURIComponent(getProductName(product))}`} 
-                        className="whatsapp-button buy-button"
+                        className="whatsapp-button buy-red-btn"
                         target="_blank"
                         rel="noopener noreferrer"
                       >

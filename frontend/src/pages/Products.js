@@ -96,7 +96,7 @@ const ProductCard = memo(({ product }) => {
         </div>
         <div className="products-page-product-footer" style={{ paddingBottom: '1.5rem' }}>
           {/* <span className="product-price">${product.price}</span> */}
-          <button className="products-page-whatsapp-buy-btn" onClick={handleWhatsAppClick}>
+          <button className="products-page-whatsapp-buy-btn buy-red-btn" onClick={handleWhatsAppClick}>
             <FaWhatsapp style={{ marginRight: '0.5rem', fontSize: '1.2rem' }} /> {t('products.buy')}
           </button>
         </div>
