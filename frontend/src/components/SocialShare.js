@@ -1,13 +1,12 @@
 import React from 'react';
 import { FaFacebook, FaTwitter, FaWhatsapp, FaLinkedin, FaTelegram, FaShare } from 'react-icons/fa';
 import './SocialShare.css';
-import shopLogo from '../images/shop-logo.jpg';
 
 const SocialShare = ({ 
   url = window.location.href, 
   title = "AFRI-CABINDA - Premium Retail Shop", 
   description = "Discover premium products at AFRI-CABINDA. Your trusted retail destination for quality goods, exceptional service, and unbeatable prices!",
-  image = shopLogo,
+  image = "https://afri-cabinda-e-commerce-website.s3.us-east-1.amazonaws.com/shop-logo.jpg",
   showWhatsApp = true,
   showFacebook = true,
   showTwitter = true,
@@ -37,31 +36,75 @@ const SocialShare = ({
 
   const shareUrls = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}&picture=${encodeURIComponent(imageUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&hashtags=AFRICABINDA,Retail,Quality&image=${encodeURIComponent(imageUrl)}`,
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} - ${description} ${url}`)}&image=${encodeURIComponent(imageUrl)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&image=${encodeURIComponent(imageUrl)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&image=${encodeURIComponent(imageUrl)}`
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&hashtags=AFRICABINDA,Retail,Quality`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} - ${description} ${url}`)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
   };
 
   const handleShare = async (platform) => {
-    if (platform === 'native' && navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        console.log('Error sharing:', error);
+    if (platform === 'native') {
+      // Check if native sharing is supported
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+        } catch (error) {
+          console.log('Error sharing:', error);
+          // Fallback to opening share dialog
+          showShareDialog();
+        }
+      } else {
+        // Fallback to share dialog
+        showShareDialog();
       }
     } else if (shareUrls[platform]) {
       window.open(shareUrls[platform], '_blank', 'width=600,height=400');
     }
   };
 
+  const showShareDialog = () => {
+    // Create a simple share dialog as fallback
+    const shareText = `${title}\n${description}\n${url}`;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert('Content copied to clipboard! You can now paste it anywhere.');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = shareText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Content copied to clipboard! You can now paste it anywhere.');
+      });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = shareText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Content copied to clipboard! You can now paste it anywhere.');
+    }
+  };
+
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      // You can add a toast notification here
       alert('Link copied to clipboard!');
     } catch (error) {
       console.log('Error copying to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Link copied to clipboard!');
     }
   };
 
@@ -118,15 +161,14 @@ const SocialShare = ({
           </button>
         )}
         
-        {navigator.share && (
-          <button 
-            className="share-button native"
-            onClick={() => handleShare('native')}
-            aria-label="Share"
-          >
-            <FaShare />
-          </button>
-        )}
+        {/* Native share button - always show if supported, otherwise show as fallback */}
+        <button 
+          className="share-button native"
+          onClick={() => handleShare('native')}
+          aria-label="Share"
+        >
+          <FaShare />
+        </button>
         
         <button 
           className="share-button copy"
