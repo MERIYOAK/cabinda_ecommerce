@@ -1054,7 +1054,6 @@ h2::after {
 
 @media (max-width: 768px) {
   .featured-categories {
-    margin: 10px;
     padding: 10px;
   }
 
@@ -2077,7 +2076,6 @@ h2::after {
   }
 
   .featured-categories {
-    margin: 20px 10px;
     padding: 20px 10px;
   }
 
