@@ -384,6 +384,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  margin-top: 100px;
 }
 
 .logout-button:hover {

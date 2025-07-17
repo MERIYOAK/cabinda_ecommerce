@@ -65,7 +65,7 @@
   animation: fadeInOffer 0.7s cubic-bezier(.21,1.02,.73,1);
   border: 2px solid transparent;
   perspective: 800px;
-  max-width: 100%;
+  max-width: 560px;
 }
 
 @keyframes fadeInOffer {

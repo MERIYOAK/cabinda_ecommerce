@@ -8,8 +8,11 @@ import AppRoutes from './routes';
 import { ScrollToTop } from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import WhatsAppFloatingButton from './components/WhatsAppFloatingButton';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import './App.css';
 import './components/WhatsAppFloatingButton.css';
+import ThemeToggleButton from './components/ThemeToggleButton';
+import './dark-mode.css';
 
 // Create a theme instance
 const theme = createTheme({
@@ -77,21 +80,24 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <ScrollToTop />
-        <WhatsAppFloatingButton />
-        <div className="App">
-          <ScrollNavbar />
-          <main className="main-content">
-            <AppRoutes />
-          </main>
-          <Footer />
-          <ScrollToTopButton />
-        </div>
-      </Router>
-    </ThemeProvider>
+    <DarkModeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <ScrollToTop />
+          <WhatsAppFloatingButton />
+          <div className="App">
+            <ScrollNavbar />
+            <ThemeToggleButton />
+            <main className="main-content">
+              <AppRoutes />
+            </main>
+            <Footer />
+            <ScrollToTopButton />
+          </div>
+        </Router>
+      </ThemeProvider>
+    </DarkModeProvider>
   );
 }
 

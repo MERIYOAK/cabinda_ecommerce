@@ -298,7 +298,6 @@
   height: 100%;
   object-fit: fill;
   transition: transform 0.4s cubic-bezier(.21,1.02,.73,1), box-shadow 0.4s;
-  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(37, 211, 102, 0.08);
 }
 

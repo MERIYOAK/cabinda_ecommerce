@@ -599,8 +599,8 @@ function Home() {
       </section>
 
       {/* Social Share Section */}
-      <section style={{ padding: '2rem 0', textAlign: 'center', background: 'linear-gradient(135deg, #f0fff4 0%, #fff 100%)' }}>
-        <h3 style={{ marginBottom: '1rem', color: '#333', fontSize: '1.5rem' }}>
+      <section className="social-share-section">
+        <h3 className="social-share-title">
           {t('home.shareWithFriends')}
         </h3>
         <SocialShare 
@@ -687,7 +687,7 @@ function Home() {
 
       {/* Featured Categories */}
       <section className="featured-categories">
-        <h2>{t('home.featuredCategories')}</h2>
+        <h2 className='categories-header'>{t('home.featuredCategories')}</h2>
         <div className="categories-marquee">
           <div className="categories-marquee-track">
             {/* First set of categories */}

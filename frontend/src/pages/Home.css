@@ -372,9 +372,14 @@
 
 /* Featured Categories */
 .featured-categories {
-  margin: 30px;
+  margin: 30px 0;
   padding: 30px;
-  background-color: #f8f9fa;
+  color: #f8f9fa !important;
+  background: #232323 !important;
+}
+
+.categories-header {
+  color: #f8f9fa !important;;
 }
 
 .categories-grid {
@@ -928,6 +933,7 @@ h2::after {
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-width: 366.66px;
 }
 
 .announcement-card:hover {
@@ -2704,4 +2710,16 @@ h2::after {
 }
 .buy-red-btn:hover .button-arrow {
   transform: translateX(8px) scale(1.1);
+}
+
+.social-share-section {
+  padding: 2rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+}
+
+.social-share-title {
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.5rem;
 }
