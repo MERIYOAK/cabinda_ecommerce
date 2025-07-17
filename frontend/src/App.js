@@ -13,6 +13,7 @@ import './App.css';
 import './components/WhatsAppFloatingButton.css';
 import ThemeToggleButton from './components/ThemeToggleButton';
 import './dark-mode.css';
+import InstallPwaPrompt from './components/InstallPwaPrompt';
 
 // Create a theme instance
 const theme = createTheme({
@@ -88,6 +89,7 @@ function App() {
           <WhatsAppFloatingButton />
           <div className="App">
             <ScrollNavbar />
+            <InstallPwaPrompt />
             <ThemeToggleButton />
             <main className="main-content">
               <AppRoutes />
