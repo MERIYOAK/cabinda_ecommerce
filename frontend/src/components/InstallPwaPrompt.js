@@ -24,21 +24,36 @@ function InstallPwaPrompt() {
     }
   };
 
+  const handleClose = () => {
+    setShowPrompt(false);
+    setDeferredPrompt(null);
+  };
+
   if (!showPrompt) return null;
 
   return (
     <div style={{
       position: 'fixed', bottom: 20, left: 0, right: 0, margin: 'auto', zIndex: 3000,
-      background: '#232323', color: '#fff', padding: '1rem 2rem', borderRadius: 12, textAlign: 'center', maxWidth: 400
+      background: '#232323', color: '#fff', padding: '1rem 2rem', borderRadius: 12, textAlign: 'center', maxWidth: 400,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12
     }}>
-      <span>Install this app for a better experience!</span>
+      <span style={{flex: 1}}>Install this app for a better experience!</span>
       <button
         onClick={handleInstallClick}
         style={{
-          marginLeft: 16, background: '#25d366', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', cursor: 'pointer'
+          marginLeft: 8, background: '#25d366', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', cursor: 'pointer'
         }}
       >
         Install
+      </button>
+      <button
+        onClick={handleClose}
+        aria-label="Close install prompt"
+        style={{
+          marginLeft: 8, background: 'transparent', color: '#fff', border: 'none', fontSize: 20, cursor: 'pointer', lineHeight: 1
+        }}
+      >
+        ×
       </button>
     </div>
   );
