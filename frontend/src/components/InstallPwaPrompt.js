@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 function InstallPwaPrompt() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  console.log('InstallPwaPrompt: current language:', i18n.language);
+  console.log('InstallPwaPrompt: installPrompt.message:', t('installPrompt.message'));
+  console.log('InstallPwaPrompt: installPrompt.installButton:', t('installPrompt.installButton'));
+  debugger;
+
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
