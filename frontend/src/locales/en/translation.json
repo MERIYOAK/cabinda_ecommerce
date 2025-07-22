@@ -424,5 +424,9 @@
     "confirmationSent": "A new confirmation email has been sent. Please check your inbox.",
     "invalidEmail": "Please enter a valid email address.",
     "failedToSubscribe": "Failed to subscribe. Please try again later."
+  },
+  "installPrompt": {
+    "message": "Install this app for a better experience!",
+    "installButton": "Install"
   }
 } 

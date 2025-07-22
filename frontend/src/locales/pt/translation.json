@@ -425,5 +425,9 @@
     "confirmationSent": "Um novo email de confirmação foi enviado. Por favor, verifique sua caixa de entrada.",
     "invalidEmail": "Por favor, digite um endereço de email válido.",
     "failedToSubscribe": "Falha ao se inscrever. Por favor, tente novamente mais tarde."
+  },
+  "installPrompt": {
+    "message": "Instale este aplicativo para uma experiência melhor!",
+    "installButton": "Instalar"
   }
 } 
