@@ -76,5 +76,9 @@
   },
   "messages": {
     "confirmDeleteProduct": "Are you sure you want to delete this product?"
+  },
+  "installPrompt": {
+    "message": "Install this app for a better experience!",
+    "installButton": "Install"
   }
 } 

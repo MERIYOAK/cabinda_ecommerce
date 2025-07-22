@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function InstallPwaPrompt() {
+  const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -37,14 +39,14 @@ function InstallPwaPrompt() {
       background: '#232323', color: '#fff', padding: '1rem 2rem', borderRadius: 12, textAlign: 'center', maxWidth: 400,
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12
     }}>
-      <span style={{flex: 1}}>Install this app for a better experience!</span>
+      <span style={{flex: 1}}>{t('installPrompt.message')}</span>
       <button
         onClick={handleInstallClick}
         style={{
           marginLeft: 8, background: '#25d366', color: '#fff', border: 'none', borderRadius: 8, padding: '0.5rem 1.2rem', cursor: 'pointer'
         }}
       >
-        Install
+        {t('installPrompt.installButton')}
       </button>
       <button
         onClick={handleClose}

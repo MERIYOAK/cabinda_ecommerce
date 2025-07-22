@@ -55,6 +55,10 @@
   "messages": {
     "confirmDeleteProduct": "Tem certeza de que deseja excluir este produto?"
   },
+  "installPrompt": {
+    "message": "Instale este aplicativo para uma experiência melhor!",
+    "installButton": "Instalar"
+  },
   "AdminProductList": {
     "images": "Imagens",
     "name": "Nome do Produto",
