@@ -655,3 +655,12 @@
 .dark-mode .loading-overlay::before {
   background: #181818;
 }
+
+.dark-mode .loading-spinner-container  {
+  background: #181818 !important;
+}
+
+.dark-mode .products-page-loading-overlay::after {
+  background: #181818;
+  animation: none;
+}
