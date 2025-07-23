@@ -604,8 +604,6 @@ function Home() {
           {t('home.shareWithFriends')}
         </h3>
         <SocialShare 
-          title="AFRI-CABINDA - Premium Retail Shop"
-          description="Discover premium products at AFRI-CABINDA. Your trusted retail destination for quality goods, exceptional service, and unbeatable prices!"
           showWhatsApp={true}
           showFacebook={true}
           showTwitter={true}

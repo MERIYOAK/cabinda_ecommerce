@@ -237,6 +237,7 @@
 
 /* Loading Text */
 .loading-text {
+  display: none !important;
   margin-top: 1rem;
   color: var(--spinner-color);
   font-weight: 600;

@@ -651,3 +651,7 @@
   background: linear-gradient(135deg, #e41e31 0%, #b71c1c 100%) !important;
   color: #fff !important;
 }
+
+.dark-mode .loading-overlay::before {
+  background: #181818;
+}
