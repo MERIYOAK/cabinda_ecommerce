@@ -39,7 +39,7 @@ const SocialShare = ({
     twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&hashtags=AFRICABINDA,Retail,Quality`,
     whatsapp: `https://wa.me/?text=${encodeURIComponent(`${url}`)}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}}`
   };
 
   const handleShare = async (platform) => {
