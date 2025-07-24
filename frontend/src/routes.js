@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AnnouncementDetail from './pages/AnnouncementDetail';
 import NewsletterConfirmation from './components/NewsletterConfirmation';
 import Sitemap from './pages/Sitemap';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const AppRoutes = () => {
   return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
       <Route path="/announcement/:id" element={<AnnouncementDetail />} />
       <Route path="/newsletter/confirm/:token" element={<NewsletterConfirmation />} />
       <Route path="/sitemap" element={<Sitemap />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route
         path="/admin"

@@ -14,6 +14,8 @@ import './components/WhatsAppFloatingButton.css';
 import ThemeToggleButton from './components/ThemeToggleButton';
 import './dark-mode.css';
 import InstallPwaPrompt from './components/InstallPwaPrompt';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import Cookies from 'js-cookie';
 
 // Create a theme instance
 const theme = createTheme({
@@ -80,6 +82,25 @@ const theme = createTheme({
 });
 
 function App() {
+  const GA_ID = process.env.REACT_APP_GA_ID || '';
+  React.useEffect(() => {
+    const consent = Cookies.get('cookieConsent') || localStorage.getItem('cookieConsent');
+    if (consent === 'accepted' && GA_ID) {
+      // Dynamically load Google Analytics or other tracking scripts
+      if (!window.gtagScriptLoaded) {
+        const script = document.createElement('script');
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+        script.async = true;
+        document.body.appendChild(script);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){window.dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', GA_ID);
+        window.gtagScriptLoaded = true;
+      }
+    }
+  }, [GA_ID]);
   return (
     <DarkModeProvider>
       <ThemeProvider theme={theme}>
@@ -96,6 +117,7 @@ function App() {
             </main>
             <Footer />
             <ScrollToTopButton />
+            <CookieConsentBanner />
           </div>
         </Router>
       </ThemeProvider>

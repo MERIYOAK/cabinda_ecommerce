@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/database');
+const cookieParser = require('cookie-parser');
 
 // Validate required environment variables
 const requiredEnvVars = {
@@ -93,6 +94,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json());
+app.use(cookieParser());
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -140,6 +142,13 @@ app.get('/api/cors-test', (req, res) => {
     corsConfigured: !!process.env.FRONTEND_URL,
     timestamp: new Date().toISOString()
   });
+});
+
+// Cookie Consent API endpoint
+// Returns the user's cookie consent status from cookies or a custom header
+app.get('/api/cookie-consent', (req, res) => {
+  const consent = req.cookies.cookieConsent || req.headers['x-cookie-consent'];
+  res.json({ consent: consent || 'unset' });
 });
 
 // Error handling middleware

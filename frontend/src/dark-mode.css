@@ -664,3 +664,103 @@
   background: #181818;
   animation: none;
 }
+
+.privacy-policy-page {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  color: #222;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  border-left: 6px solid #007b45;
+  font-size: 1.08rem;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  transition: background 0.3s, color 0.3s;
+}
+
+.privacy-policy-page h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.2rem;
+  color: #007b45;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.privacy-policy-page h2 {
+  font-size: 1.3rem;
+  margin-top: 2.2rem;
+  margin-bottom: 0.7rem;
+  color: #005c2e;
+  font-weight: 600;
+}
+
+.privacy-policy-page p {
+  margin-bottom: 1.1rem;
+  color: #333;
+}
+
+.privacy-policy-page a {
+  color: #007b45;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.privacy-policy-page a:hover {
+  color: #004d29;
+}
+
+.dark-mode .privacy-policy-page {
+  background: #232323 !important;
+  color: #fff !important;
+  border-left: 6px solid #25d366;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.dark-mode .privacy-policy-page h1 {
+  color: #25d366 !important;
+}
+.dark-mode .privacy-policy-page h2 {
+  color: #7fffd4 !important;
+}
+.dark-mode .privacy-policy-page p {
+  color: #e0e0e0 !important;
+}
+.dark-mode .privacy-policy-page a {
+  color: #7fffd4 !important;
+}
+.dark-mode .privacy-policy-page a:hover {
+  color: #25d366 !important;
+}
+
+.dark-mode .sitemap {
+  background-color: #181818 !important;
+}
+
+.dark-mode .sitemap .container {
+  background-color: #232323 !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25) !important;
+  border-radius: 12px !important;
+}
+
+.dark-mode .sitemap h1 {
+  color: #25d366 !important;
+}
+
+.dark-mode .sitemap-section h2 {
+  color: #7fffd4 !important;
+  border-bottom: 2px solid #333 !important;
+}
+
+.dark-mode .sitemap-section a {
+  color: #b2f5ea !important;
+}
+
+.dark-mode .sitemap-section a:hover {
+  color: #25d366 !important;
+}
+
+.dark-mode .sitemap-section li {
+  color: #e0e0e0 !important;
+}

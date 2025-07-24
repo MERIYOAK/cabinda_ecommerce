@@ -428,5 +428,22 @@
   "installPrompt": {
     "message": "Install this app for a better experience!",
     "installButton": "Install"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to enhance your experience. By clicking 'Accept All', you consent to our use of cookies. Read our <1>Privacy Policy</1>.",
+    "accept": "Accept All",
+    "reject": "Reject"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "Your privacy is important to us. This policy explains how we use cookies and handle your data on our website.",
+    "cookiesTitle": "Cookies",
+    "cookies": "We use cookies to enhance your experience, analyze site usage, and provide relevant offers. You can accept or reject cookies at any time using the cookie banner.",
+    "dataTitle": "Personal Data",
+    "data": "We only collect personal data that you provide voluntarily, such as your email for newsletters or your WhatsApp number for inquiries. We do not share your data with third parties except as required by law.",
+    "rightsTitle": "Your Rights",
+    "rights": "You have the right to access, correct, or delete your personal data. Contact us if you have any questions about your privacy.",
+    "contactTitle": "Contact Us",
+    "contact": "If you have any questions about this policy, please contact us via the contact form or WhatsApp."
   }
 } 

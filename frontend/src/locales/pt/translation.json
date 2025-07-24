@@ -429,5 +429,22 @@
   "installPrompt": {
     "message": "Instale este aplicativo para uma experiência melhor!",
     "installButton": "Instalar"
+  },
+  "cookieConsent": {
+    "message": "Usamos cookies para melhorar sua experiência. Ao clicar em 'Aceitar Todos', você consente com o uso de cookies. Leia nossa <1>Política de Privacidade</1>.",
+    "accept": "Aceitar Todos",
+    "reject": "Rejeitar"
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "intro": "Sua privacidade é importante para nós. Esta política explica como usamos cookies e tratamos seus dados em nosso site.",
+    "cookiesTitle": "Cookies",
+    "cookies": "Usamos cookies para melhorar sua experiência, analisar o uso do site e fornecer ofertas relevantes. Você pode aceitar ou rejeitar cookies a qualquer momento usando o banner de cookies.",
+    "dataTitle": "Dados Pessoais",
+    "data": "Coletamos apenas os dados pessoais que você fornece voluntariamente, como seu e-mail para newsletters ou seu número de WhatsApp para consultas. Não compartilhamos seus dados com terceiros, exceto quando exigido por lei.",
+    "rightsTitle": "Seus Direitos",
+    "rights": "Você tem o direito de acessar, corrigir ou excluir seus dados pessoais. Entre em contato conosco se tiver dúvidas sobre sua privacidade.",
+    "contactTitle": "Fale Conosco",
+    "contact": "Se você tiver alguma dúvida sobre esta política, entre em contato pelo formulário de contato ou WhatsApp."
   }
 } 
